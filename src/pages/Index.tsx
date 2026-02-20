@@ -49,8 +49,20 @@ import DarkModeToggle from "@/components/DarkModeToggle";
 import CountUp from "@/components/CountUp";
 import TypeWriter from "@/components/TypeWriter";
 
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+function scrollTo(id: string, delay = 0) {
+  const go = () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const nav = document.querySelector("nav");
+    const offset = nav ? nav.getBoundingClientRect().height + 16 : 60;
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+  if (delay) {
+    setTimeout(go, delay);
+  } else {
+    go();
+  }
 }
 
 const PROJECT_ICONS = [Droplets, Cpu, Wheat, FlaskConical];
@@ -372,7 +384,7 @@ const Index = () => {
               {NAV_ITEMS.map((n) => (
                 <li key={n.id}>
                   <button
-                    onClick={() => { scrollTo(n.id); setMobileOpen(false); }}
+                    onClick={() => { setMobileOpen(false); scrollTo(n.id, 300); }}
                     className={`block w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === n.id ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
                   >
                     {n.label}
