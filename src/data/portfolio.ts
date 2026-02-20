@@ -163,4 +163,9 @@ export const CONTACT_LINKS = [
   { label: "LinkedIn", url: "https://mw.linkedin.com/in/isaac-rhinnexious-fandika-phd-70507830" },
 ];
 
+export const CONTACT_INFO = {
+  email: "fandikai@yahoo.co.uk",
+  phone: "+265882925512",
+};
+
 export const HERO_KEYWORDS = ["Irrigation", "Water Productivity", "Monitoring Tools", "Climate Adaptation"];

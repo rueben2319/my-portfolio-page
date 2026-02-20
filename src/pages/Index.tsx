@@ -48,6 +48,7 @@ import {
   AWARDS,
   MEDIA,
   CONTACT_LINKS,
+  CONTACT_INFO,
   HERO_KEYWORDS,
 } from "@/data/portfolio";
 
@@ -149,19 +150,35 @@ function SectionBg({
   children,
   image,
   className = "",
+  eager = false,
 }: {
   children: React.ReactNode;
   image: string;
   className?: string;
+  eager?: boolean;
 }) {
   const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "200px" });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return (
     <div ref={ref} className={`relative isolate overflow-hidden ${className}`}>
-      <motion.div style={{ y }} className="absolute inset-0 z-[-20]">
-        <img src={image} alt="" className="h-[120%] w-full object-cover" />
-      </motion.div>
+      {(eager || isInView) && (
+        <motion.div
+          style={isMobile ? undefined : { y }}
+          className="absolute inset-0 z-[-20]"
+        >
+          <img
+            src={image}
+            alt=""
+            loading={eager ? "eager" : "lazy"}
+            decoding="async"
+            className="h-full md:h-[115%] w-full object-cover object-center will-change-transform"
+            sizes="100vw"
+          />
+        </motion.div>
+      )}
       <div className="absolute inset-0 z-[-10] bg-background/80 dark:bg-background/88" />
       {children}
     </div>
@@ -215,13 +232,17 @@ const Index = () => {
       <header ref={heroRef} className="relative isolate min-h-[80vh] md:min-h-[90vh] flex items-center overflow-hidden py-12 md:py-0">
         {/* Background irrigation image with parallax */}
         <motion.div
-          style={{ y: blob1Y }}
+          style={typeof window !== "undefined" && window.innerWidth >= 768 ? { y: blob1Y } : undefined}
           className="absolute inset-0 z-[-20]"
         >
           <img
             src={heroBg}
             alt=""
-            className="h-[120%] w-full object-cover object-center"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
+            className="h-full md:h-[115%] w-full object-cover object-center will-change-transform"
+            sizes="100vw"
           />
         </motion.div>
         {/* Dark overlay for readability */}
@@ -423,7 +444,7 @@ const Index = () => {
       </nav>
 
       {/* ═══════════ ABOUT ═══════════ */}
-      <SectionBg image={bgAbout} className="py-14 md:py-24">
+      <SectionBg image={bgAbout} className="py-14 md:py-24" eager>
         <section id="about" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="About" subtitle="Research focus & background" />
           <Reveal>
@@ -667,6 +688,19 @@ const Index = () => {
               >
                 <Mail className="h-10 w-10" />
               </motion.div>
+              <div className="space-y-1 mb-8">
+                <p className="font-bold text-foreground text-lg">Direct Contact</p>
+                <p className="text-muted-foreground">
+                  <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-primary transition-colors">
+                    {CONTACT_INFO.email}
+                  </a>
+                </p>
+                <p className="text-muted-foreground">
+                  <a href={`tel:${CONTACT_INFO.phone}`} className="hover:text-primary transition-colors">
+                    {CONTACT_INFO.phone}
+                  </a>
+                </p>
+              </div>
               <div className="space-y-1 mb-8">
                 <p className="font-bold text-foreground text-lg">Institutional Contact</p>
                 <p className="text-muted-foreground">Department of Agricultural Research Services (DARS)</p>
