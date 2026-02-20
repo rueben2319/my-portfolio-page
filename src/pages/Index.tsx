@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   GraduationCap,
   Briefcase,
@@ -15,9 +14,20 @@ import {
   X,
   ArrowUpRight,
   Download,
+  Droplets,
+  Cpu,
+  Wheat,
+  FlaskConical,
+  ChevronRight,
+  Globe,
+  Linkedin,
+  FileText,
+  Trophy,
+  Star,
+  Sprout,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import profileImg from "@/assets/profile.jpg";
 
 import {
@@ -43,70 +53,89 @@ function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
-/* ── Animated section wrapper with parallax ── */
-function AnimatedSection({
+const PROJECT_ICONS = [Droplets, Cpu, Wheat, FlaskConical];
+const LINK_ICONS: Record<string, typeof Globe> = {
+  ResearchGate: Globe,
+  "Google Scholar": BookOpen,
+  ORCID: FileText,
+  LinkedIn: Linkedin,
+};
+
+/* ── Animated wrapper ── */
+function Reveal({
   children,
   className = "",
   id,
+  delay = 0,
 }: {
   children: React.ReactNode;
   className?: string;
   id?: string;
+  delay?: number;
 }) {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  const isInView = useInView(ref, { once: true, margin: "-60px" });
   return (
-    <motion.section
+    <motion.div
       id={id}
       ref={ref}
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
     >
       {children}
-    </motion.section>
+    </motion.div>
   );
 }
 
-/* ── Section heading with animated underline ── */
-function SectionHeading({
-  icon,
-  title,
-  subtitle,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  subtitle?: string;
-}) {
+/* ── Section title ── */
+function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   return (
-    <div className="mb-10" ref={ref}>
-      <div className="flex items-center gap-3">
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={isInView ? { scale: 1, rotate: 0 } : {}}
-          transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary"
+    <div ref={ref} className="mb-12 text-center">
+      <motion.h2
+        initial={{ opacity: 0, y: 20 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.5 }}
+        className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+      >
+        {title}
+      </motion.h2>
+      {subtitle && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="mt-3 text-muted-foreground max-w-lg mx-auto"
         >
-          {icon}
-        </motion.div>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="mt-0.5 text-sm text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
-      </div>
+          {subtitle}
+        </motion.p>
+      )}
       <motion.div
         initial={{ scaleX: 0 }}
         animate={isInView ? { scaleX: 1 } : {}}
         transition={{ duration: 0.6, delay: 0.2 }}
-        className="mt-3 h-[2px] origin-left bg-gradient-to-r from-primary/40 to-transparent"
+        className="mx-auto mt-4 h-1 w-16 rounded-full bg-gradient-to-r from-primary to-[hsl(var(--gradient-end))]"
       />
+    </div>
+  );
+}
+
+/* ── Parallax divider between sections ── */
+function ParallaxDivider({ children }: { children: React.ReactNode }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  return (
+    <div ref={ref} className="relative overflow-hidden py-24 md:py-32">
+      <motion.div
+        style={{ y }}
+        className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-transparent to-[hsl(var(--gradient-end)/.05)]"
+      />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.06),transparent_60%)]" />
+      {children}
     </div>
   );
 }
@@ -116,19 +145,15 @@ const Index = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
 
-  // Parallax for hero
   const heroRef = useRef(null);
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const heroY = useTransform(heroProgress, [0, 1], ["0%", "40%"]);
-  const heroOpacity = useTransform(heroProgress, [0, 0.8], [1, 0]);
-
-  // Parallax for floating blobs
-  const blob1Y = useTransform(heroProgress, [0, 1], [0, 150]);
-  const blob2Y = useTransform(heroProgress, [0, 1], [0, -100]);
-  const blob3Y = useTransform(heroProgress, [0, 1], [0, 200]);
+  const heroY = useTransform(heroProgress, [0, 1], ["0%", "30%"]);
+  const heroOpacity = useTransform(heroProgress, [0, 0.7], [1, 0]);
+  const blob1Y = useTransform(heroProgress, [0, 1], [0, 120]);
+  const blob2Y = useTransform(heroProgress, [0, 1], [0, -80]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -136,7 +161,6 @@ const Index = () => {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Track active section
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -159,75 +183,74 @@ const Index = () => {
       <ParticleBackground />
       <BackToTop />
 
-      {/* ─── HERO with Parallax ─── */}
-      <header ref={heroRef} className="relative overflow-hidden pb-16 pt-24 md:pt-32 md:pb-28">
-        {/* Animated background blobs */}
+      {/* ═══════════ HERO ═══════════ */}
+      <header ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 -z-10">
-          <motion.div
-            style={{ y: blob1Y }}
-            className="absolute -top-20 -right-20 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl"
-          />
-          <motion.div
-            style={{ y: blob2Y }}
-            className="absolute -bottom-20 -left-20 h-[400px] w-[400px] rounded-full bg-primary/3 blur-3xl"
-          />
-          <motion.div
-            style={{ y: blob3Y }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-primary/[0.02] blur-3xl"
-          />
-          {/* Animated gradient mesh */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,hsl(var(--primary)/0.06),transparent_50%),radial-gradient(ellipse_at_bottom_left,hsl(var(--gradient-end)/0.04),transparent_50%)]" />
+          <motion.div style={{ y: blob1Y }} className="absolute -top-32 -right-32 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[100px]" />
+          <motion.div style={{ y: blob2Y }} className="absolute -bottom-32 -left-32 h-[500px] w-[500px] rounded-full bg-[hsl(var(--gradient-end)/.04)] blur-[100px]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,hsl(var(--primary)/0.05),transparent_60%)]" />
         </div>
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
-          className="mx-auto flex max-w-[1100px] flex-col items-center gap-8 px-6 text-center md:flex-row md:text-left"
+          className="mx-auto flex max-w-[1100px] w-full flex-col items-center gap-10 px-6 text-center md:flex-row md:text-left md:gap-16"
         >
-          {/* Avatar with animated gradient ring */}
+          {/* Profile image — large and prominent */}
           <motion.div
-            initial={{ scale: 0.5, opacity: 0, rotate: -10 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            transition={{ duration: 0.7, type: "spring", stiffness: 150 }}
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
             className="relative shrink-0 group"
           >
-            <div className="absolute -inset-2 rounded-full bg-gradient-to-br from-primary to-[hsl(var(--gradient-end))] opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-500" />
-            <div className="gradient-border h-36 w-36 rounded-full md:h-44 md:w-44">
-              <div className="h-full w-full overflow-hidden rounded-full bg-primary/10">
-                <img
-                  src={profileImg}
-                  alt="Dr. Isaac R. Fandika"
-                  className="h-full w-full rounded-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-              </div>
+            <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 to-[hsl(var(--gradient-end)/.15)] blur-2xl group-hover:blur-3xl transition-all duration-700" />
+            <div className="relative h-48 w-48 md:h-56 md:w-56 rounded-full overflow-hidden ring-2 ring-primary/20 ring-offset-4 ring-offset-background">
+              <img
+                src={profileImg}
+                alt="Dr. Isaac R. Fandika"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
             </div>
+            {/* Floating icon */}
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-2 -right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
+            >
+              <Sprout className="h-6 w-6" />
+            </motion.div>
           </motion.div>
 
-          <div className="space-y-4">
-            <motion.div
+          <div className="space-y-5 max-w-xl">
+            <motion.p
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary"
+            >
+              <Droplets className="h-3.5 w-3.5" />
+              Chief Agricultural Research Scientist
+            </motion.p>
+
+            <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="space-y-2"
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1]"
             >
-              <p className="text-sm font-medium uppercase tracking-widest text-primary">
-                Chief Agricultural Research Scientist
-              </p>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Dr. Isaac R.{" "}
-                <span className="gradient-text">Fandika</span>
-              </h1>
-            </motion.div>
+              Dr. Isaac R.{" "}
+              <span className="gradient-text">Fandika</span>
+            </motion.h1>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
             >
-              <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
+              <p className="text-lg text-muted-foreground leading-relaxed">
                 <TypeWriter
                   text="Irrigation agronomist advancing water-smart, climate-resilient agriculture for smallholder farmers in sub-Saharan Africa."
-                  speed={25}
-                  delay={800}
+                  speed={22}
+                  delay={900}
                 />
               </p>
             </motion.div>
@@ -235,30 +258,27 @@ const Index = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+              transition={{ delay: 0.7 }}
               className="flex items-center gap-2 text-sm text-muted-foreground justify-center md:justify-start"
             >
               <MapPin className="h-4 w-4 text-primary" />
-              <span>DARS, Ministry of Agriculture - Malawi</span>
+              DARS, Ministry of Agriculture - Malawi
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              className="flex flex-wrap justify-center gap-2 pt-2 md:justify-start"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="flex flex-wrap gap-2 justify-center md:justify-start"
             >
               {HERO_KEYWORDS.map((k, i) => (
                 <motion.div
                   key={k}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 + i * 0.1 }}
+                  transition={{ delay: 0.9 + i * 0.08 }}
                 >
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full px-3 py-1 text-xs font-medium hover:bg-primary/10 hover:text-primary transition-colors cursor-default"
-                  >
+                  <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
                     {k}
                   </Badge>
                 </motion.div>
@@ -266,8 +286,8 @@ const Index = () => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2 }}
               className="flex gap-3 pt-2 justify-center md:justify-start"
             >
@@ -288,41 +308,42 @@ const Index = () => {
             </motion.div>
           </div>
         </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="flex flex-col items-center gap-2 text-muted-foreground/50 text-xs"
+          >
+            <span>Scroll</span>
+            <ChevronRight className="h-4 w-4 rotate-90" />
+          </motion.div>
+        </motion.div>
       </header>
 
-      {/* ─── STICKY NAV ─── */}
-      <nav
-        className={`sticky top-[3px] z-40 transition-all duration-300 ${
-          scrolled
-            ? "glass shadow-lg shadow-background/20"
-            : "bg-background/80 backdrop-blur-md border-b"
-        }`}
-      >
+      {/* ═══════════ STICKY NAV ═══════════ */}
+      <nav className={`sticky top-[3px] z-40 transition-all duration-300 ${scrolled ? "glass shadow-lg shadow-background/20" : "bg-background/80 backdrop-blur-md border-b"}`}>
         <div className="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-2 md:py-0">
-          <span className="text-sm font-bold text-foreground md:hidden">
-            I. R. Fandika
-          </span>
+          <span className="text-sm font-bold text-foreground md:hidden">I. R. Fandika</span>
           <ul className="hidden md:flex gap-0.5">
             {NAV_ITEMS.map((n) => (
               <li key={n.id}>
                 <button
                   onClick={() => scrollTo(n.id)}
-                  className={`relative rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                    activeSection === n.id
-                      ? "text-primary"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`relative rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === n.id ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {n.label}
                   {activeSection === n.id && (
                     <motion.div
                       layoutId="activeNav"
                       className="absolute inset-x-1 -bottom-[1px] h-0.5 rounded-full bg-primary"
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 30,
-                      }}
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
                 </button>
@@ -336,409 +357,317 @@ const Index = () => {
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
-        {mobileOpen && (
-          <motion.ul
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="md:hidden border-t px-6 pb-4 pt-2 space-y-0.5 bg-background"
-          >
-            {NAV_ITEMS.map((n) => (
-              <li key={n.id}>
-                <button
-                  onClick={() => {
-                    scrollTo(n.id);
-                    setMobileOpen(false);
-                  }}
-                  className={`block w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                    activeSection === n.id
-                      ? "text-primary bg-primary/5"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  {n.label}
-                </button>
-              </li>
-            ))}
-          </motion.ul>
-        )}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.ul
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t px-6 pb-4 pt-2 space-y-0.5 bg-background overflow-hidden"
+            >
+              {NAV_ITEMS.map((n) => (
+                <li key={n.id}>
+                  <button
+                    onClick={() => { scrollTo(n.id); setMobileOpen(false); }}
+                    className={`block w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === n.id ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                  >
+                    {n.label}
+                  </button>
+                </li>
+              ))}
+            </motion.ul>
+          )}
+        </AnimatePresence>
       </nav>
 
-      {/* ─── MAIN ─── */}
-      <main className="relative z-10 mx-auto max-w-[1100px] space-y-24 px-6 py-20">
-        {/* ABOUT */}
-        <AnimatedSection id="about">
-          <SectionHeading
-            icon={<BookOpen className="h-5 w-5" />}
-            title="About"
-            subtitle="Research focus & background"
-          />
-          <div className="rounded-2xl glass p-6 sm:p-8 hover:shadow-xl transition-shadow duration-500">
-            <p className="max-w-3xl leading-relaxed text-muted-foreground">
-              Dr. Isaac Rhinnexious Fandika is a seasoned irrigation agronomist
-              and Chief Agricultural Research Scientist at the Department of
-              Agricultural Research Services (DARS) within Malawi's Ministry of
-              Agriculture. His research focuses on improving water productivity
-              for smallholder farming systems through innovative irrigation
-              strategies, precision soil-moisture monitoring, and digital
-              advisory tools. He earned his PhD in Plant Science (Irrigation
-              Agronomy) from Massey University, New Zealand, where he
-              investigated deficit irrigation and alternate-furrow techniques on
-              tropical cereals. With over 15 years of applied research across
-              Kasinthula and Bvumbwe research stations, Dr. Fandika has
-              published widely in peer-reviewed journals and led multi-country
-              projects that translate science into field-ready solutions.
-            </p>
-          </div>
-        </AnimatedSection>
+      {/* ═══════════ ABOUT ═══════════ */}
+      <section id="about" className="py-24">
+        <div className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="About" subtitle="Research focus & background" />
+          <Reveal>
+            <div className="mx-auto max-w-3xl text-center">
+              <div className="relative inline-block mb-6">
+                <BookOpen className="h-12 w-12 text-primary mx-auto" />
+              </div>
+              <p className="text-lg leading-loose text-muted-foreground">
+                Dr. Isaac Rhinnexious Fandika is a seasoned irrigation agronomist
+                and Chief Agricultural Research Scientist at the Department of
+                Agricultural Research Services (DARS) within Malawi's Ministry of
+                Agriculture. His research focuses on improving water productivity
+                for smallholder farming systems through innovative irrigation
+                strategies, precision soil-moisture monitoring, and digital
+                advisory tools. He earned his PhD in Plant Science (Irrigation
+                Agronomy) from Massey University, New Zealand, where he
+                investigated deficit irrigation and alternate-furrow techniques on
+                tropical cereals. With over 15 years of applied research across
+                Kasinthula and Bvumbwe research stations, Dr. Fandika has
+                published widely in peer-reviewed journals and led multi-country
+                projects that translate science into field-ready solutions.
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
 
-        {/* EDUCATION */}
-        <AnimatedSection id="education">
-          <SectionHeading
-            icon={<GraduationCap className="h-5 w-5" />}
-            title="Education"
-          />
-          <div className="grid gap-5 sm:grid-cols-3">
+      {/* ═══════════ EDUCATION — Timeline ═══════════ */}
+      <ParallaxDivider>
+        <section id="education" className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="Education" subtitle="Academic journey" />
+          <div className="relative max-w-2xl mx-auto">
+            {/* Timeline line */}
+            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent" />
             {EDUCATION.map((e, i) => (
-              <motion.div
-                key={e.degree}
-                initial={{ opacity: 0, y: 30, rotateX: 15 }}
-                whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.6 }}
-              >
-                <Card className="group h-full overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
-                  <div className="h-1 bg-gradient-to-r from-primary to-[hsl(var(--gradient-end))] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                  <CardContent className="p-5 space-y-2">
-                    <p className="font-bold text-foreground group-hover:text-primary transition-colors">
-                      {e.degree}
-                    </p>
-                    {e.field && (
-                      <p className="text-xs text-primary font-medium">
-                        {e.field}
-                      </p>
-                    )}
-                    <p className="text-sm text-muted-foreground">{e.uni}</p>
-                    <p className="text-xs font-mono text-muted-foreground/70">
-                      {e.years}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <Reveal key={e.degree} delay={i * 0.15} className="relative flex gap-6 pb-12 last:pb-0">
+                {/* Timeline dot */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.15 + 0.2, type: "spring" }}
+                  className="relative z-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+                >
+                  <GraduationCap className="h-7 w-7" />
+                </motion.div>
+                <div className="pt-2">
+                  <h3 className="text-lg font-bold text-foreground">{e.degree}</h3>
+                  {e.field && <p className="text-sm font-medium text-primary">{e.field}</p>}
+                  <p className="text-muted-foreground mt-1">{e.uni}</p>
+                  <p className="text-sm font-mono text-muted-foreground/60 mt-1">{e.years}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
-        </AnimatedSection>
+        </section>
+      </ParallaxDivider>
 
-        {/* AFFILIATIONS */}
-        <AnimatedSection id="affiliations">
-          <SectionHeading
-            icon={<Briefcase className="h-5 w-5" />}
-            title="Affiliations"
-            subtitle="Current positions & roles"
-          />
-          <div className="grid gap-5 sm:grid-cols-2">
+      {/* ═══════════ AFFILIATIONS ═══════════ */}
+      <section id="affiliations" className="py-24">
+        <div className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="Affiliations" subtitle="Current positions & roles" />
+          <div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
             {AFFILIATIONS.map((a, i) => (
-              <motion.div
-                key={a.role}
-                initial={{ opacity: 0, x: i === 0 ? -30 : 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, type: "spring" }}
-              >
-                <Card className="group h-full border-0 shadow-md hover:shadow-xl transition-all duration-500 hover:-translate-y-1">
-                  <CardContent className="p-6 space-y-3">
-                    <motion.div
-                      whileHover={{ rotate: 10 }}
-                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10"
-                    >
-                      <Briefcase className="h-5 w-5 text-primary" />
-                    </motion.div>
-                    <p className="font-bold text-foreground group-hover:text-primary transition-colors">
-                      {a.role}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{a.org}</p>
-                    <p className="text-xs text-muted-foreground">{a.detail}</p>
-                    <div className="flex items-center gap-1 text-xs text-primary">
-                      <MapPin className="h-3 w-3" />
-                      {a.location}
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              <Reveal key={a.role} delay={i * 0.15}>
+                <div className="group text-center md:text-left">
+                  <motion.div
+                    whileHover={{ scale: 1.1, rotate: 5 }}
+                    className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4"
+                  >
+                    <Briefcase className="h-7 w-7" />
+                  </motion.div>
+                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{a.role}</h3>
+                  <p className="text-muted-foreground mt-1">{a.org}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{a.detail}</p>
+                  <div className="flex items-center gap-1.5 text-sm text-primary mt-2 justify-center md:justify-start">
+                    <MapPin className="h-3.5 w-3.5" />
+                    {a.location}
+                  </div>
+                </div>
+              </Reveal>
             ))}
           </div>
-        </AnimatedSection>
+        </div>
+      </section>
 
-        {/* PUBLICATIONS */}
-        <AnimatedSection id="publications">
-          <SectionHeading
-            icon={<BookOpen className="h-5 w-5" />}
-            title="Publications"
-            subtitle="Selected peer-reviewed work"
-          />
-          <div className="space-y-3">
+      {/* ═══════════ PUBLICATIONS ═══════════ */}
+      <ParallaxDivider>
+        <section id="publications" className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="Publications" subtitle="Selected peer-reviewed work" />
+          <div className="space-y-6 max-w-3xl mx-auto">
             {PUBLICATIONS.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.06, duration: 0.5 }}
-              >
-                <Card className="group border-0 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/20">
-                  <CardContent className="p-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="space-y-1 max-w-2xl">
-                      <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">
-                        {p.title}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {p.authors}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        <span className="italic">{p.journal}</span>
-                        <span className="mx-1.5 font-mono">-</span>
-                        <span className="font-mono">{p.year}</span>
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0 pt-1 sm:pt-0">
+              <Reveal key={i} delay={i * 0.05}>
+                <div className="group flex gap-4 items-start">
+                  <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary mt-0.5">
+                    <BookOpen className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">
+                      {p.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">{p.authors}</p>
+                    <div className="flex items-center gap-3 mt-2 flex-wrap">
+                      <span className="text-xs text-muted-foreground italic">{p.journal}</span>
+                      <span className="text-xs font-mono text-muted-foreground/70">{p.year}</span>
                       {p.openAccess && (
-                        <Badge className="rounded-full bg-primary/10 text-primary border-primary/20 text-xs hover:bg-primary/10">
+                        <Badge className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px] px-2 py-0 hover:bg-emerald-500/10">
                           Open Access
                         </Badge>
                       )}
                       {p.url !== "#" && (
-                        <a
-                          href={p.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary"
-                          >
-                            <ArrowUpRight className="h-4 w-4" />
-                          </Button>
+                        <a href={p.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                          View <ArrowUpRight className="h-3 w-3" />
                         </a>
                       )}
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+                  </div>
+                </div>
+              </Reveal>
             ))}
           </div>
-        </AnimatedSection>
+        </section>
+      </ParallaxDivider>
 
-        {/* PROJECTS with CountUp stats */}
-        <AnimatedSection id="projects">
-          <SectionHeading
-            icon={<Lightbulb className="h-5 w-5" />}
-            title="Projects & Impact"
-            subtitle="Key research initiatives"
-          />
-          <div className="grid gap-5 sm:grid-cols-2">
-            {PROJECTS.map((p, i) => (
-              <motion.div
-                key={p.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.6 }}
-                whileHover={{ y: -4 }}
-              >
-                <Card className="group h-full border-0 shadow-md hover:shadow-xl transition-all duration-500 overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <CardTitle className="text-base font-bold group-hover:text-primary transition-colors">
-                        {p.title}
-                      </CardTitle>
-                      <div className="text-right shrink-0 ml-4">
-                        <CountUp
-                          value={p.stat}
-                          className="text-2xl font-extrabold gradient-text"
-                        />
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                          {p.statLabel}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {p.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </AnimatedSection>
-
-        {/* AWARDS */}
-        <AnimatedSection id="awards">
-          <SectionHeading
-            icon={<Award className="h-5 w-5" />}
-            title="Awards & Honors"
-          />
-          <div className="grid gap-5 sm:grid-cols-3">
-            {AWARDS.map((a, i) => (
-              <motion.div
-                key={a.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.5 }}
-                whileHover={{ y: -4, rotate: 1 }}
-              >
-                <Card className="group h-full border-0 shadow-md hover:shadow-xl transition-all duration-500 text-center overflow-hidden">
-                  <CardContent className="p-6 space-y-3 relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <motion.div
-                      whileHover={{ rotate: [0, -10, 10, 0] }}
-                      transition={{ duration: 0.5 }}
-                      className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10"
-                    >
-                      <Award className="h-7 w-7 text-primary" />
-                    </motion.div>
-                    <p className="relative font-bold text-foreground group-hover:text-primary transition-colors">
-                      {a.name}
-                    </p>
-                    <p className="relative text-sm text-muted-foreground">
-                      {a.org}
-                    </p>
-                    <Badge
-                      variant="outline"
-                      className="relative rounded-full font-mono text-xs"
-                    >
-                      {a.year}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </AnimatedSection>
-
-        {/* MEDIA */}
-        <AnimatedSection id="media">
-          <SectionHeading
-            icon={<Newspaper className="h-5 w-5" />}
-            title="Media & Press"
-          />
-          <div className="space-y-3">
-            {MEDIA.map((m, i) => (
-              <motion.div
-                key={m.title}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-              >
-                <Card className="group border-0 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
-                  <CardContent className="p-5 flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
-                        {m.title}
-                      </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {m.source}
-                      </p>
-                    </div>
-                    {m.url !== "#" && (
-                      <a
-                        href={m.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 rounded-full hover:bg-primary/10 hover:text-primary"
-                        >
-                          <ArrowUpRight className="h-4 w-4" />
-                        </Button>
-                      </a>
-                    )}
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </AnimatedSection>
-
-        {/* CONTACT */}
-        <AnimatedSection id="contact">
-          <SectionHeading
-            icon={<Mail className="h-5 w-5" />}
-            title="Contact & Links"
-          />
-          <Card className="border-0 shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-500">
-            <div className="h-1 bg-gradient-to-r from-primary to-[hsl(var(--gradient-end))]" />
-            <CardContent className="p-6 sm:p-8 space-y-6">
-              <div className="space-y-1">
-                <p className="font-bold text-foreground">
-                  Institutional Contact
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Department of Agricultural Research Services (DARS)
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Ministry of Agriculture, P.O. Box 158, Lilongwe, Malawi
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {CONTACT_LINKS.map((l, i) => (
-                  <motion.a
-                    key={l.label}
-                    href={l.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+      {/* ═══════════ PROJECTS — Visual bento grid ═══════════ */}
+      <section id="projects" className="py-24">
+        <div className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="Projects & Impact" subtitle="Key research initiatives" />
+          <div className="grid gap-6 md:grid-cols-2">
+            {PROJECTS.map((p, i) => {
+              const Icon = PROJECT_ICONS[i] || Lightbulb;
+              return (
+                <Reveal key={p.title} delay={i * 0.12}>
+                  <motion.div
+                    whileHover={{ y: -6 }}
+                    className="group relative rounded-3xl bg-gradient-to-br from-card to-card p-8 border border-border/50 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 overflow-hidden"
                   >
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="rounded-full gap-1.5 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                      {l.label}
-                    </Button>
-                  </motion.a>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </AnimatedSection>
-      </main>
+                    {/* Background gradient on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
 
-      {/* ─── FOOTER ─── */}
-      <footer className="relative border-t py-12">
+                    <div className="relative">
+                      <div className="flex items-start justify-between mb-4">
+                        <motion.div
+                          whileHover={{ rotate: 10, scale: 1.1 }}
+                          className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+                        >
+                          <Icon className="h-7 w-7" />
+                        </motion.div>
+                        <div className="text-right">
+                          <CountUp value={p.stat} className="text-3xl font-extrabold gradient-text" />
+                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{p.statLabel}</p>
+                        </div>
+                      </div>
+                      <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-2">{p.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
+                    </div>
+                  </motion.div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ AWARDS — Visual with large icons ═══════════ */}
+      <ParallaxDivider>
+        <section id="awards" className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="Awards & Honors" />
+          <div className="grid gap-8 sm:grid-cols-3 max-w-3xl mx-auto">
+            {AWARDS.map((a, i) => (
+              <Reveal key={a.name} delay={i * 0.12}>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className="group text-center"
+                >
+                  <motion.div
+                    whileHover={{ rotate: [0, -10, 10, 0] }}
+                    transition={{ duration: 0.5 }}
+                    className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary mb-4"
+                  >
+                    {i === 0 ? <Trophy className="h-9 w-9" /> : i === 1 ? <Star className="h-9 w-9" /> : <Award className="h-9 w-9" />}
+                  </motion.div>
+                  <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{a.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">{a.org}</p>
+                  <p className="text-xs font-mono text-primary/70 mt-2">{a.year}</p>
+                </motion.div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      </ParallaxDivider>
+
+      {/* ═══════════ MEDIA ═══════════ */}
+      <section id="media" className="py-24">
+        <div className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="Media & Press" />
+          <div className="space-y-6 max-w-3xl mx-auto">
+            {MEDIA.map((m, i) => (
+              <Reveal key={m.title} delay={i * 0.1}>
+                <div className="group flex gap-4 items-center">
+                  <div className="shrink-0 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Newspaper className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">{m.title}</h3>
+                    <p className="text-sm text-muted-foreground mt-0.5">{m.source}</p>
+                  </div>
+                  {m.url !== "#" && (
+                    <a href={m.url} target="_blank" rel="noopener noreferrer">
+                      <motion.div whileHover={{ scale: 1.1 }} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors">
+                        <ArrowUpRight className="h-5 w-5" />
+                      </motion.div>
+                    </a>
+                  )}
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ CONTACT ═══════════ */}
+      <section id="contact" className="py-24">
+        <div className="mx-auto max-w-[1100px] px-6">
+          <SectionTitle title="Get in Touch" subtitle="Let's connect" />
+          <div className="max-w-2xl mx-auto text-center">
+            <Reveal>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary mb-6"
+              >
+                <Mail className="h-10 w-10" />
+              </motion.div>
+              <div className="space-y-1 mb-8">
+                <p className="font-bold text-foreground text-lg">Institutional Contact</p>
+                <p className="text-muted-foreground">Department of Agricultural Research Services (DARS)</p>
+                <p className="text-muted-foreground">Ministry of Agriculture, P.O. Box 158, Lilongwe, Malawi</p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-3">
+                {CONTACT_LINKS.map((l, i) => {
+                  const Icon = LINK_ICONS[l.label] || ExternalLink;
+                  return (
+                    <motion.a
+                      key={l.label}
+                      href={l.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.1 }}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        variant="outline"
+                        className="rounded-full gap-2 px-5 py-5 text-sm hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all"
+                      >
+                        <Icon className="h-4 w-4" />
+                        {l.label}
+                      </Button>
+                    </motion.a>
+                  );
+                })}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ FOOTER ═══════════ */}
+      <footer className="relative border-t py-14">
         <div className="absolute inset-0 bg-gradient-to-t from-primary/[0.02] to-transparent" />
         <div className="relative mx-auto max-w-[1100px] px-6 text-center space-y-3">
           <p className="text-sm font-medium text-muted-foreground">
             DARS - Ministry of Agriculture, Malawi - Mechro Limited
           </p>
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Dr. Isaac R. Fandika. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} Dr. Isaac R. Fandika. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground/50">
-            Irrigation agronomy - water productivity - soil moisture monitoring -
-            climate-resilient agriculture - Malawi
+          <p className="text-xs text-muted-foreground/40">
+            Irrigation agronomy - water productivity - soil moisture monitoring - climate-resilient agriculture
           </p>
         </div>
       </footer>
