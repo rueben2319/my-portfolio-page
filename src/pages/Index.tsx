@@ -29,6 +29,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import profileImg from "@/assets/profile.jpg";
+import heroBg from "@/assets/hero-bg.jpg";
 
 import {
   NAV_ITEMS,
@@ -196,12 +197,22 @@ const Index = () => {
       <BackToTop />
 
       {/* ═══════════ HERO ═══════════ */}
-      <header ref={heroRef} className="relative min-h-[80vh] md:min-h-[90vh] flex items-center overflow-hidden py-12 md:py-0">
-        <div className="absolute inset-0 -z-10">
-          <motion.div style={{ y: blob1Y }} className="absolute -top-32 right-0 md:-right-32 h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-primary/5 blur-[100px]" />
-          <motion.div style={{ y: blob2Y }} className="absolute -bottom-32 left-0 md:-left-32 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-[hsl(var(--gradient-end)/.04)] blur-[100px]" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,hsl(var(--primary)/0.05),transparent_60%)]" />
-        </div>
+      <header ref={heroRef} className="relative isolate min-h-[80vh] md:min-h-[90vh] flex items-center overflow-hidden py-12 md:py-0">
+        {/* Background irrigation image with parallax */}
+        <motion.div
+          style={{ y: blob1Y }}
+          className="absolute inset-0 z-[-20]"
+        >
+          <img
+            src={heroBg}
+            alt=""
+            className="h-[120%] w-full object-cover object-center"
+          />
+        </motion.div>
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 z-[-10] bg-gradient-to-b from-background/85 via-background/75 to-background dark:from-background/90 dark:via-background/80 dark:to-background" />
+        {/* Teal tint overlay */}
+        <div className="absolute inset-0 z-[-10] bg-primary/[0.04]" />
 
         <motion.div
           style={{ y: heroY, opacity: heroOpacity }}
@@ -214,8 +225,8 @@ const Index = () => {
             transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
             className="relative shrink-0 group"
           >
-            <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 to-[hsl(var(--gradient-end)/.15)] blur-2xl group-hover:blur-3xl transition-all duration-700" />
-            <div className="relative h-40 w-40 sm:h-48 sm:w-48 md:h-56 md:w-56 rounded-full overflow-hidden ring-2 ring-primary/20 ring-offset-4 ring-offset-background">
+            <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/25 to-[hsl(var(--gradient-end)/.20)] blur-2xl group-hover:blur-3xl transition-all duration-700" />
+            <div className="relative h-40 w-40 sm:h-48 sm:w-48 md:h-56 md:w-56 rounded-full overflow-hidden ring-2 ring-white/30 ring-offset-4 ring-offset-background shadow-2xl">
               <img
                 src={profileImg}
                 alt="Dr. Isaac R. Fandika"
@@ -237,7 +248,7 @@ const Index = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-[10px] sm:text-xs sm:px-4 font-semibold uppercase tracking-widest text-primary"
+              className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-sm px-3 py-1.5 text-[10px] sm:text-xs sm:px-4 font-semibold uppercase tracking-widest text-primary"
             >
               <Droplets className="h-3.5 w-3.5" />
               Chief Agricultural Research Scientist
@@ -247,7 +258,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1]"
+              className="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1] drop-shadow-sm"
             >
               Dr. Isaac R.{" "}
               <span className="gradient-text">Fandika</span>
@@ -290,7 +301,7 @@ const Index = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.9 + i * 0.08 }}
                 >
-                  <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
+                  <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium backdrop-blur-sm">
                     {k}
                   </Badge>
                 </motion.div>
@@ -305,14 +316,14 @@ const Index = () => {
             >
               <Button
                 onClick={() => scrollTo("contact")}
-                className="rounded-full gap-2 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+                className="rounded-full gap-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
               >
                 <Mail className="h-4 w-4" />
                 Get in Touch
               </Button>
               <Button
                 variant="outline"
-                className="rounded-full gap-2 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all"
+                className="rounded-full gap-2 bg-background/50 backdrop-blur-sm hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all"
               >
                 <Download className="h-4 w-4" />
                 Download CV
