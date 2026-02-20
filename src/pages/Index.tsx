@@ -94,12 +94,12 @@ function SectionTitle({ title, subtitle }: { title: string; subtitle?: string })
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   return (
-    <div ref={ref} className="mb-12 text-center">
+    <div ref={ref} className="mb-8 md:mb-12 text-center">
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.5 }}
-        className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+        className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl md:text-4xl lg:text-5xl"
       >
         {title}
       </motion.h2>
@@ -129,7 +129,7 @@ function ParallaxDivider({ children }: { children: React.ReactNode }) {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
   return (
-    <div ref={ref} className="relative overflow-hidden py-24 md:py-32">
+    <div ref={ref} className="relative overflow-hidden py-14 md:py-32">
       <motion.div
         style={{ y }}
         className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-transparent to-[hsl(var(--gradient-end)/.05)]"
@@ -184,10 +184,10 @@ const Index = () => {
       <BackToTop />
 
       {/* ═══════════ HERO ═══════════ */}
-      <header ref={heroRef} className="relative min-h-[90vh] flex items-center overflow-hidden">
+      <header ref={heroRef} className="relative min-h-[80vh] md:min-h-[90vh] flex items-center overflow-hidden py-12 md:py-0">
         <div className="absolute inset-0 -z-10">
-          <motion.div style={{ y: blob1Y }} className="absolute -top-32 -right-32 h-[600px] w-[600px] rounded-full bg-primary/5 blur-[100px]" />
-          <motion.div style={{ y: blob2Y }} className="absolute -bottom-32 -left-32 h-[500px] w-[500px] rounded-full bg-[hsl(var(--gradient-end)/.04)] blur-[100px]" />
+          <motion.div style={{ y: blob1Y }} className="absolute -top-32 right-0 md:-right-32 h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-primary/5 blur-[100px]" />
+          <motion.div style={{ y: blob2Y }} className="absolute -bottom-32 left-0 md:-left-32 h-[300px] w-[300px] md:h-[500px] md:w-[500px] rounded-full bg-[hsl(var(--gradient-end)/.04)] blur-[100px]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,hsl(var(--primary)/0.05),transparent_60%)]" />
         </div>
 
@@ -203,7 +203,7 @@ const Index = () => {
             className="relative shrink-0 group"
           >
             <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/20 to-[hsl(var(--gradient-end)/.15)] blur-2xl group-hover:blur-3xl transition-all duration-700" />
-            <div className="relative h-48 w-48 md:h-56 md:w-56 rounded-full overflow-hidden ring-2 ring-primary/20 ring-offset-4 ring-offset-background">
+            <div className="relative h-40 w-40 sm:h-48 sm:w-48 md:h-56 md:w-56 rounded-full overflow-hidden ring-2 ring-primary/20 ring-offset-4 ring-offset-background">
               <img
                 src={profileImg}
                 alt="Dr. Isaac R. Fandika"
@@ -225,7 +225,7 @@ const Index = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary"
+              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-[10px] sm:text-xs sm:px-4 font-semibold uppercase tracking-widest text-primary"
             >
               <Droplets className="h-3.5 w-3.5" />
               Chief Agricultural Research Scientist
@@ -235,7 +235,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1]"
+              className="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1]"
             >
               Dr. Isaac R.{" "}
               <span className="gradient-text">Fandika</span>
@@ -246,7 +246,7 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.5 }}
             >
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
                 <TypeWriter
                   text="Irrigation agronomist advancing water-smart, climate-resilient agriculture for smallholder farmers in sub-Saharan Africa."
                   speed={22}
@@ -289,7 +289,7 @@ const Index = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.2 }}
-              className="flex gap-3 pt-2 justify-center md:justify-start"
+              className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start items-center sm:items-start"
             >
               <Button
                 onClick={() => scrollTo("contact")}
@@ -314,7 +314,7 @@ const Index = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex"
         >
           <motion.div
             animate={{ y: [0, 8, 0] }}
@@ -385,7 +385,7 @@ const Index = () => {
       </nav>
 
       {/* ═══════════ ABOUT ═══════════ */}
-      <section id="about" className="py-24">
+      <section id="about" className="py-14 md:py-24">
         <div className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="About" subtitle="Research focus & background" />
           <Reveal>
@@ -419,16 +419,16 @@ const Index = () => {
           <SectionTitle title="Education" subtitle="Academic journey" />
           <div className="relative max-w-2xl mx-auto">
             {/* Timeline line */}
-            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent" />
+            <div className="absolute left-[1.95rem] sm:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent" />
             {EDUCATION.map((e, i) => (
-              <Reveal key={e.degree} delay={i * 0.15} className="relative flex gap-6 pb-12 last:pb-0">
+              <Reveal key={e.degree} delay={i * 0.15} className="relative flex gap-4 sm:gap-6 pb-10 sm:pb-12 last:pb-0">
                 {/* Timeline dot */}
                 <motion.div
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.15 + 0.2, type: "spring" }}
-                  className="relative z-10 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary"
+                  className="relative z-10 flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-primary/10 text-primary"
                 >
                   <GraduationCap className="h-7 w-7" />
                 </motion.div>
@@ -445,7 +445,7 @@ const Index = () => {
       </ParallaxDivider>
 
       {/* ═══════════ AFFILIATIONS ═══════════ */}
-      <section id="affiliations" className="py-24">
+      <section id="affiliations" className="py-14 md:py-24">
         <div className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Affiliations" subtitle="Current positions & roles" />
           <div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
@@ -511,7 +511,7 @@ const Index = () => {
       </ParallaxDivider>
 
       {/* ═══════════ PROJECTS — Visual bento grid ═══════════ */}
-      <section id="projects" className="py-24">
+      <section id="projects" className="py-14 md:py-24">
         <div className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Projects & Impact" subtitle="Key research initiatives" />
           <div className="grid gap-6 md:grid-cols-2">
@@ -521,7 +521,7 @@ const Index = () => {
                 <Reveal key={p.title} delay={i * 0.12}>
                   <motion.div
                     whileHover={{ y: -6 }}
-                    className="group relative rounded-3xl bg-gradient-to-br from-card to-card p-8 border border-border/50 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 overflow-hidden"
+                    className="group relative rounded-2xl sm:rounded-3xl bg-gradient-to-br from-card to-card p-5 sm:p-8 border border-border/50 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 overflow-hidden"
                   >
                     {/* Background gradient on hover */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
@@ -579,7 +579,7 @@ const Index = () => {
       </ParallaxDivider>
 
       {/* ═══════════ MEDIA ═══════════ */}
-      <section id="media" className="py-24">
+      <section id="media" className="py-14 md:py-24">
         <div className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Media & Press" />
           <div className="space-y-6 max-w-3xl mx-auto">
@@ -608,7 +608,7 @@ const Index = () => {
       </section>
 
       {/* ═══════════ CONTACT ═══════════ */}
-      <section id="contact" className="py-24">
+      <section id="contact" className="py-14 md:py-24">
         <div className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Get in Touch" subtitle="Let's connect" />
           <div className="max-w-2xl mx-auto text-center">
@@ -642,7 +642,7 @@ const Index = () => {
                     >
                       <Button
                         variant="outline"
-                        className="rounded-full gap-2 px-5 py-5 text-sm hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all"
+                        className="rounded-full gap-2 px-4 py-3 sm:px-5 sm:py-5 text-xs sm:text-sm hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all"
                       >
                         <Icon className="h-4 w-4" />
                         {l.label}
