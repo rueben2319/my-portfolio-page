@@ -1,8 +1,6 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   GraduationCap,
   Briefcase,
@@ -15,8 +13,12 @@ import {
   MapPin,
   Menu,
   X,
+  ArrowUpRight,
+  Droplets,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 const NAV_ITEMS = [
   { id: "about", label: "About" },
@@ -93,21 +95,29 @@ const PROJECTS = [
     title: "Virtual Irrigation Academy (VIA)",
     description:
       "Co-developed and field-tested a mobile-based advisory platform that delivers real-time irrigation scheduling to smallholder farmers across southern Malawi, boosting water-use efficiency by up to 30 %.",
+    stat: "30%",
+    statLabel: "efficiency boost",
   },
   {
     title: "AI for Soil Moisture & Nutrient Monitoring",
     description:
       "Led the integration of low-cost sensors with machine-learning models to predict soil moisture and nutrient status, reducing water waste and fertiliser costs for resource-constrained farmers.",
+    stat: "AI",
+    statLabel: "powered sensing",
   },
   {
     title: "Alternate-Furrow Irrigation Research",
     description:
       "Demonstrated that alternate-furrow irrigation can cut water use by 35 % in maize without significant yield penalty — findings now adopted in national extension guidelines.",
+    stat: "35%",
+    statLabel: "water saved",
   },
   {
     title: "Shire Valley Wheat Dissemination",
     description:
       "Spearheaded on-farm wheat trials in the Shire Valley, proving winter-irrigated wheat viability and contributing to Malawi's food-security diversification strategy.",
+    stat: "New",
+    statLabel: "crop viability",
   },
 ];
 
@@ -139,9 +149,45 @@ function scrollTo(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 }
 
+/* ── Animated section wrapper ── */
+function AnimatedSection({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-80px" });
+  return (
+    <motion.section
+      id={id}
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+/* ── Section heading ── */
+function SectionHeading({ icon, title, subtitle }: { icon: React.ReactNode; title: string; subtitle?: string }) {
+  return (
+    <div className="mb-8">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          {icon}
+        </div>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {title}
+        </h2>
+      </div>
+      {subtitle && <p className="mt-2 ml-[52px] text-sm text-muted-foreground">{subtitle}</p>}
+    </div>
+  );
+}
+
 const Index = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("about");
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -149,63 +195,115 @@ const Index = () => {
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
+  // Track active section
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px" }
+    );
+    NAV_ITEMS.forEach((n) => {
+      const el = document.getElementById(n.id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* ─── HERO ─── */}
-      <header className="relative overflow-hidden bg-primary/5 pb-12 pt-16 md:pt-24 md:pb-20">
-        <div className="mx-auto flex max-w-[1100px] flex-col items-center gap-6 px-5 text-center md:flex-row md:text-left">
-          <Avatar className="h-32 w-32 border-4 border-primary/20 shadow-lg md:h-40 md:w-40">
-            <AvatarFallback className="bg-primary text-primary-foreground text-4xl font-heading font-bold">
-              IF
-            </AvatarFallback>
-          </Avatar>
+      <header className="relative overflow-hidden pb-16 pt-20 md:pt-28 md:pb-24">
+        {/* Background decoration */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 right-0 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-primary/3 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-primary/[0.02] blur-3xl" />
+        </div>
 
-          <div className="space-y-3">
-            <h1 className="font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-              Dr. Isaac Rhinnexious Fandika
-            </h1>
-            <p className="font-body text-lg text-muted-foreground leading-relaxed max-w-2xl">
-              Irrigation agronomist advancing <span className="text-primary font-semibold font-heading">water-smart, climate-resilient agriculture</span> for smallholder farmers in sub-Saharan Africa.
+        <div className="mx-auto flex max-w-[1100px] flex-col items-center gap-8 px-6 text-center md:flex-row md:text-left">
+          {/* Avatar with gradient ring */}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="relative shrink-0"
+          >
+            <div className="gradient-border h-36 w-36 rounded-full md:h-44 md:w-44">
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-primary/10">
+                <Droplets className="h-16 w-16 text-primary/60" />
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <p className="text-sm font-medium uppercase tracking-widest text-primary">
+                Chief Agricultural Research Scientist
+              </p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                Dr. Isaac R.{" "}
+                <span className="gradient-text">Fandika</span>
+              </h1>
+            </div>
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
+              Irrigation agronomist advancing water-smart, climate-resilient agriculture for smallholder farmers in sub-Saharan Africa.
             </p>
-            <p className="text-sm text-muted-foreground font-heading flex items-center justify-center gap-1 md:justify-start">
-              <Briefcase className="h-4 w-4 text-primary" />
-              Chief Agricultural Research Scientist (Irrigation) · DARS, Malawi
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 pt-1 md:justify-start">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground justify-center md:justify-start">
+              <MapPin className="h-4 w-4 text-primary" />
+              <span>DARS, Ministry of Agriculture · Malawi</span>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2 pt-2 md:justify-start">
               {["Irrigation", "Water Productivity", "Monitoring Tools", "Climate Adaptation"].map((k) => (
-                <Badge key={k} variant="secondary" className="font-heading">
+                <Badge key={k} variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
                   {k}
                 </Badge>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </header>
 
       {/* ─── STICKY NAV ─── */}
       <nav
-        className={`sticky top-0 z-40 border-b bg-background/90 backdrop-blur transition-shadow ${
-          scrolled ? "shadow-sm" : ""
+        className={`sticky top-0 z-40 transition-all duration-300 ${
+          scrolled ? "glass shadow-lg shadow-background/20" : "bg-background/80 backdrop-blur-md border-b"
         }`}
       >
-        <div className="mx-auto flex max-w-[1100px] items-center justify-between px-5 py-2 md:py-0">
-          <span className="font-heading text-sm font-semibold text-primary md:hidden">I. R. Fandika</span>
-          {/* Desktop */}
-          <ul className="hidden md:flex gap-1">
+        <div className="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-2 md:py-0">
+          <span className="text-sm font-bold text-foreground md:hidden">I. R. Fandika</span>
+          <ul className="hidden md:flex gap-0.5">
             {NAV_ITEMS.map((n) => (
               <li key={n.id}>
                 <button
                   onClick={() => scrollTo(n.id)}
-                  className="rounded-md px-3 py-2 text-sm font-heading font-medium text-muted-foreground transition-colors hover:text-primary hover:bg-primary/5"
+                  className={`relative rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                    activeSection === n.id
+                      ? "text-primary"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
                 >
                   {n.label}
+                  {activeSection === n.id && (
+                    <motion.div
+                      layoutId="activeNav"
+                      className="absolute inset-x-1 -bottom-[1px] h-0.5 rounded-full bg-primary"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </button>
               </li>
             ))}
           </ul>
-          {/* Mobile toggle */}
           <button
-            className="md:hidden p-1"
+            className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >
@@ -213,187 +311,268 @@ const Index = () => {
           </button>
         </div>
         {mobileOpen && (
-          <ul className="md:hidden border-t px-5 pb-3 pt-2 space-y-1 bg-background">
+          <motion.ul
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="md:hidden border-t px-6 pb-4 pt-2 space-y-0.5 bg-background"
+          >
             {NAV_ITEMS.map((n) => (
               <li key={n.id}>
                 <button
                   onClick={() => { scrollTo(n.id); setMobileOpen(false); }}
-                  className="block w-full text-left rounded-md px-3 py-2 text-sm font-heading font-medium text-muted-foreground hover:text-primary hover:bg-primary/5"
+                  className={`block w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                    activeSection === n.id ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
                 >
                   {n.label}
                 </button>
               </li>
             ))}
-          </ul>
+          </motion.ul>
         )}
       </nav>
 
-      {/* ─── MAIN CONTENT ─── */}
-      <main className="mx-auto max-w-[1100px] space-y-16 px-5 py-14">
+      {/* ─── MAIN ─── */}
+      <main className="mx-auto max-w-[1100px] space-y-20 px-6 py-16">
         {/* ABOUT */}
-        <section id="about">
-          <SectionHeading icon={<BookOpen />} title="About" />
-          <p className="max-w-3xl leading-relaxed text-muted-foreground">
-            Dr. Isaac Rhinnexious Fandika is a seasoned irrigation agronomist and Chief Agricultural Research Scientist
-            at the Department of Agricultural Research Services (DARS) within Malawi's Ministry of Agriculture. His
-            research focuses on improving water productivity for smallholder farming systems through innovative
-            irrigation strategies, precision soil-moisture monitoring, and digital advisory tools. He earned his PhD in
-            Plant Science (Irrigation Agronomy) from Massey University, New Zealand, where he investigated deficit
-            irrigation and alternate-furrow techniques on tropical cereals. With over 15 years of applied research
-            across Kasinthula and Bvumbwe research stations, Dr. Fandika has published widely in peer-reviewed journals
-            and led multi-country projects that translate science into field-ready solutions. He also serves as Board
-            Director and Chief Scientific Advisor at Mechro Limited, bridging agriculture and engineering expertise
-            to scale climate-resilient technologies.
-          </p>
-        </section>
-
-        <Separator />
+        <AnimatedSection id="about">
+          <SectionHeading icon={<BookOpen className="h-5 w-5" />} title="About" subtitle="Research focus & background" />
+          <div className="rounded-2xl glass p-6 sm:p-8">
+            <p className="max-w-3xl leading-relaxed text-muted-foreground">
+              Dr. Isaac Rhinnexious Fandika is a seasoned irrigation agronomist and Chief Agricultural Research Scientist
+              at the Department of Agricultural Research Services (DARS) within Malawi's Ministry of Agriculture. His
+              research focuses on improving water productivity for smallholder farming systems through innovative
+              irrigation strategies, precision soil-moisture monitoring, and digital advisory tools. He earned his PhD in
+              Plant Science (Irrigation Agronomy) from Massey University, New Zealand, where he investigated deficit
+              irrigation and alternate-furrow techniques on tropical cereals. With over 15 years of applied research
+              across Kasinthula and Bvumbwe research stations, Dr. Fandika has published widely in peer-reviewed journals
+              and led multi-country projects that translate science into field-ready solutions.
+            </p>
+          </div>
+        </AnimatedSection>
 
         {/* EDUCATION */}
-        <section id="education">
-          <SectionHeading icon={<GraduationCap />} title="Education" />
+        <AnimatedSection id="education">
+          <SectionHeading icon={<GraduationCap className="h-5 w-5" />} title="Education" />
           <div className="grid gap-4 sm:grid-cols-3">
             {[
-              { degree: "PhD, Plant Science (Irrigation Agronomy)", uni: "Massey University, New Zealand", years: "2009 – 2012" },
-              { degree: "MSc, Water Management", uni: "Cranfield University, UK", years: "2003 – 2004" },
-              { degree: "BSc, Agriculture", uni: "University of Malawi", years: "1999 – 2002" },
-            ].map((e) => (
-              <Card key={e.degree} className="border-l-4 border-l-primary">
-                <CardContent className="p-5 space-y-1">
-                  <p className="font-heading font-semibold text-foreground">{e.degree}</p>
-                  <p className="text-sm text-muted-foreground">{e.uni}</p>
-                  <p className="text-xs text-primary font-heading font-medium">{e.years}</p>
-                </CardContent>
-              </Card>
+              { degree: "PhD, Plant Science", field: "Irrigation Agronomy", uni: "Massey University, NZ", years: "2009 – 2012" },
+              { degree: "MSc, Water Management", field: "", uni: "Cranfield University, UK", years: "2003 – 2004" },
+              { degree: "BSc, Agriculture", field: "", uni: "University of Malawi", years: "1999 – 2002" },
+            ].map((e, i) => (
+              <motion.div
+                key={e.degree}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+              >
+                <Card className="group h-full overflow-hidden border-0 shadow-md hover:shadow-xl transition-shadow duration-300">
+                  <div className="h-1 bg-gradient-to-r from-primary to-[hsl(var(--gradient-end))]" />
+                  <CardContent className="p-5 space-y-2">
+                    <p className="font-bold text-foreground">{e.degree}</p>
+                    {e.field && <p className="text-xs text-primary font-medium">{e.field}</p>}
+                    <p className="text-sm text-muted-foreground">{e.uni}</p>
+                    <p className="text-xs font-mono text-muted-foreground/70">{e.years}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
-        </section>
-
-        <Separator />
+        </AnimatedSection>
 
         {/* AFFILIATIONS */}
-        <section id="affiliations">
-          <SectionHeading icon={<Briefcase />} title="Affiliations & Positions" />
+        <AnimatedSection id="affiliations">
+          <SectionHeading icon={<Briefcase className="h-5 w-5" />} title="Affiliations" subtitle="Current positions & roles" />
           <div className="grid gap-4 sm:grid-cols-2">
-            <Card>
-              <CardContent className="p-5 space-y-1">
-                <p className="font-heading font-semibold text-foreground">Chief Agricultural Research Scientist</p>
-                <p className="text-sm text-muted-foreground">Department of Agricultural Research Services (DARS), Ministry of Agriculture, Malawi</p>
-                <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> Kasinthula & Bvumbwe Research Stations</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-5 space-y-1">
-                <p className="font-heading font-semibold text-foreground">Board Director & Chief Scientific Advisor</p>
-                <p className="text-sm text-muted-foreground">Mechro Limited</p>
-                <p className="text-xs text-muted-foreground">Bridging agriculture & engineering for climate-resilient technology</p>
-              </CardContent>
-            </Card>
+            {[
+              {
+                role: "Chief Agricultural Research Scientist",
+                org: "Department of Agricultural Research Services (DARS)",
+                detail: "Ministry of Agriculture, Malawi",
+                location: "Kasinthula & Bvumbwe Research Stations",
+              },
+              {
+                role: "Board Director & Chief Scientific Advisor",
+                org: "Mechro Limited",
+                detail: "Bridging agriculture & engineering",
+                location: "Climate-resilient technology",
+              },
+            ].map((a, i) => (
+              <motion.div
+                key={a.role}
+                initial={{ opacity: 0, x: i === 0 ? -20 : 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+              >
+                <Card className="h-full border-0 shadow-md hover:shadow-xl transition-shadow duration-300">
+                  <CardContent className="p-6 space-y-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                      <Briefcase className="h-4 w-4 text-primary" />
+                    </div>
+                    <p className="font-bold text-foreground">{a.role}</p>
+                    <p className="text-sm text-muted-foreground">{a.org}</p>
+                    <p className="text-xs text-muted-foreground">{a.detail}</p>
+                    <div className="flex items-center gap-1 text-xs text-primary">
+                      <MapPin className="h-3 w-3" />
+                      {a.location}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
-        </section>
-
-        <Separator />
+        </AnimatedSection>
 
         {/* PUBLICATIONS */}
-        <section id="publications">
-          <SectionHeading icon={<BookOpen />} title="Selected Publications" />
+        <AnimatedSection id="publications">
+          <SectionHeading icon={<BookOpen className="h-5 w-5" />} title="Publications" subtitle="Selected peer-reviewed work" />
           <div className="space-y-3">
             {PUBLICATIONS.map((p, i) => (
-              <Card key={i} className="group">
-                <CardContent className="p-5 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="space-y-0.5 max-w-2xl">
-                    <p className="text-sm text-muted-foreground">{p.authors}</p>
-                    <p className="font-heading font-semibold text-foreground leading-snug">{p.title}</p>
-                    <p className="text-sm text-muted-foreground italic">{p.journal}, {p.year}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0">
-                    {p.openAccess && <Badge variant="secondary" className="font-heading text-xs">Open Access</Badge>}
-                    {p.url !== "#" && (
-                      <a href={p.url} target="_blank" rel="noopener noreferrer">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <ExternalLink className="h-4 w-4" />
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05, duration: 0.4 }}
+              >
+                <Card className="group border-0 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                  <CardContent className="p-5 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-1 max-w-2xl">
+                      <p className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">
+                        {p.title}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{p.authors}</p>
+                      <p className="text-xs text-muted-foreground">
+                        <span className="italic">{p.journal}</span>
+                        <span className="mx-1.5 font-mono">·</span>
+                        <span className="font-mono">{p.year}</span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0 pt-1 sm:pt-0">
+                      {p.openAccess && (
+                        <Badge className="rounded-full bg-primary/10 text-primary border-primary/20 text-xs hover:bg-primary/10">
+                          Open Access
+                        </Badge>
+                      )}
+                      {p.url !== "#" && (
+                        <a href={p.url} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-primary/10 hover:text-primary">
+                            <ArrowUpRight className="h-4 w-4" />
+                          </Button>
+                        </a>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatedSection>
+
+        {/* PROJECTS */}
+        <AnimatedSection id="projects">
+          <SectionHeading icon={<Lightbulb className="h-5 w-5" />} title="Projects & Impact" subtitle="Key research initiatives" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {PROJECTS.map((p, i) => (
+              <motion.div
+                key={p.title}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+              >
+                <Card className="group h-full border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-base font-bold">{p.title}</CardTitle>
+                      <div className="text-right shrink-0 ml-4">
+                        <p className="text-2xl font-extrabold gradient-text">{p.stat}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{p.statLabel}</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatedSection>
+
+        {/* AWARDS */}
+        <AnimatedSection id="awards">
+          <SectionHeading icon={<Award className="h-5 w-5" />} title="Awards & Honors" />
+          <div className="grid gap-4 sm:grid-cols-3">
+            {AWARDS.map((a, i) => (
+              <motion.div
+                key={a.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+              >
+                <Card className="h-full border-0 shadow-md hover:shadow-xl transition-shadow duration-300 text-center">
+                  <CardContent className="p-6 space-y-3">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                      <Award className="h-6 w-6 text-primary" />
+                    </div>
+                    <p className="font-bold text-foreground">{a.name}</p>
+                    <p className="text-sm text-muted-foreground">{a.org}</p>
+                    <Badge variant="outline" className="rounded-full font-mono text-xs">
+                      {a.year}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </AnimatedSection>
+
+        {/* MEDIA */}
+        <AnimatedSection id="media">
+          <SectionHeading icon={<Newspaper className="h-5 w-5" />} title="Media & Press" />
+          <div className="space-y-3">
+            {MEDIA.map((m, i) => (
+              <motion.div
+                key={m.title}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.4 }}
+              >
+                <Card className="group border-0 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
+                  <CardContent className="p-5 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
+                        {m.title}
+                      </p>
+                      <p className="text-sm text-muted-foreground mt-1">{m.source}</p>
+                    </div>
+                    {m.url !== "#" && (
+                      <a href={m.url} target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 rounded-full hover:bg-primary/10 hover:text-primary">
+                          <ArrowUpRight className="h-4 w-4" />
                         </Button>
                       </a>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
-        </section>
-
-        <Separator />
-
-        {/* PROJECTS */}
-        <section id="projects">
-          <SectionHeading icon={<Lightbulb />} title="Projects & Impact" />
-          <div className="grid gap-4 sm:grid-cols-2">
-            {PROJECTS.map((p) => (
-              <Card key={p.title}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-heading">{p.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <Separator />
-
-        {/* AWARDS */}
-        <section id="awards">
-          <SectionHeading icon={<Award />} title="Awards & Honors" />
-          <div className="grid gap-4 sm:grid-cols-3">
-            {AWARDS.map((a) => (
-              <Card key={a.name} className="text-center">
-                <CardContent className="p-5 space-y-1">
-                  <p className="font-heading font-semibold text-foreground">{a.name}</p>
-                  <p className="text-sm text-muted-foreground">{a.org}</p>
-                  <Badge variant="secondary" className="font-heading">{a.year}</Badge>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <Separator />
-
-        {/* MEDIA */}
-        <section id="media">
-          <SectionHeading icon={<Newspaper />} title="Media & Press" />
-          <div className="space-y-3">
-            {MEDIA.map((m) => (
-              <Card key={m.title} className="group">
-                <CardContent className="p-5 flex items-center justify-between gap-4">
-                  <div>
-                    <p className="font-heading font-semibold text-foreground leading-snug">{m.title}</p>
-                    <p className="text-sm text-muted-foreground">{m.source}</p>
-                  </div>
-                  {m.url !== "#" && (
-                    <a href={m.url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    </a>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        <Separator />
+        </AnimatedSection>
 
         {/* CONTACT */}
-        <section id="contact">
-          <SectionHeading icon={<Mail />} title="Contact & Links" />
-          <Card>
-            <CardContent className="p-6 space-y-4">
+        <AnimatedSection id="contact">
+          <SectionHeading icon={<Mail className="h-5 w-5" />} title="Contact & Links" />
+          <Card className="border-0 shadow-lg overflow-hidden">
+            <div className="h-1 bg-gradient-to-r from-primary to-[hsl(var(--gradient-end))]" />
+            <CardContent className="p-6 sm:p-8 space-y-6">
               <div className="space-y-1">
-                <p className="font-heading font-semibold text-foreground">Institutional Contact</p>
+                <p className="font-bold text-foreground">Institutional Contact</p>
                 <p className="text-sm text-muted-foreground">Department of Agricultural Research Services (DARS)</p>
                 <p className="text-sm text-muted-foreground">Ministry of Agriculture, P.O. Box 158, Lilongwe, Malawi</p>
               </div>
@@ -405,7 +584,7 @@ const Index = () => {
                   { label: "LinkedIn", url: "https://www.linkedin.com/in/isaac-fandika" },
                 ].map((l) => (
                   <a key={l.label} href={l.url} target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" className="font-heading gap-1.5">
+                    <Button variant="outline" size="sm" className="rounded-full gap-1.5 hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-colors">
                       <ExternalLink className="h-3.5 w-3.5" />
                       {l.label}
                     </Button>
@@ -414,19 +593,19 @@ const Index = () => {
               </div>
             </CardContent>
           </Card>
-        </section>
+        </AnimatedSection>
       </main>
 
       {/* ─── FOOTER ─── */}
-      <footer className="border-t bg-muted/40 py-8">
-        <div className="mx-auto max-w-[1100px] px-5 text-center space-y-2">
-          <p className="text-sm text-muted-foreground font-heading">
+      <footer className="border-t py-10">
+        <div className="mx-auto max-w-[1100px] px-6 text-center space-y-3">
+          <p className="text-sm font-medium text-muted-foreground">
             DARS · Ministry of Agriculture, Malawi · Mechro Limited
           </p>
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Dr. Isaac R. Fandika. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground/60">
+          <p className="text-xs text-muted-foreground/50">
             Irrigation agronomy · water productivity · soil moisture monitoring · climate-resilient agriculture · Malawi
           </p>
         </div>
@@ -434,15 +613,5 @@ const Index = () => {
     </div>
   );
 };
-
-/* ── Reusable section heading ── */
-function SectionHeading({ icon, title }: { icon: React.ReactNode; title: string }) {
-  return (
-    <h2 className="mb-6 flex items-center gap-2 font-heading text-2xl font-bold text-foreground">
-      <span className="text-primary">{icon}</span>
-      {title}
-    </h2>
-  );
-}
 
 export default Index;
