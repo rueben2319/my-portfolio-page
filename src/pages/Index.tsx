@@ -30,6 +30,14 @@ import { useState, useEffect, useRef } from "react";
 import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import profileImg from "@/assets/profile.jpg";
 import heroBg from "@/assets/hero-bg.jpg";
+import bgAbout from "@/assets/bg-about.jpg";
+import bgEducation from "@/assets/bg-education.jpg";
+import bgAffiliations from "@/assets/bg-affiliations.jpg";
+import bgPublications from "@/assets/bg-publications.jpg";
+import bgProjects from "@/assets/bg-projects.jpg";
+import bgAwards from "@/assets/bg-awards.jpg";
+import bgMedia from "@/assets/bg-media.jpg";
+import bgContact from "@/assets/bg-contact.jpg";
 
 import {
   NAV_ITEMS,
@@ -136,18 +144,25 @@ function SectionTitle({ title, subtitle }: { title: string; subtitle?: string })
   );
 }
 
-/* ── Parallax divider between sections ── */
-function ParallaxDivider({ children }: { children: React.ReactNode }) {
+/* ── Section with parallax background image ── */
+function SectionBg({
+  children,
+  image,
+  className = "",
+}: {
+  children: React.ReactNode;
+  image: string;
+  className?: string;
+}) {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
+  const y = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
   return (
-    <div ref={ref} className="relative overflow-hidden py-14 md:py-32">
-      <motion.div
-        style={{ y }}
-        className="absolute inset-0 -z-10 bg-gradient-to-br from-primary/5 via-transparent to-[hsl(var(--gradient-end)/.05)]"
-      />
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_50%,hsl(var(--primary)/0.06),transparent_60%)]" />
+    <div ref={ref} className={`relative isolate overflow-hidden ${className}`}>
+      <motion.div style={{ y }} className="absolute inset-0 z-[-20]">
+        <img src={image} alt="" className="h-[120%] w-full object-cover" />
+      </motion.div>
+      <div className="absolute inset-0 z-[-10] bg-background/80 dark:bg-background/88" />
       {children}
     </div>
   );
@@ -408,8 +423,8 @@ const Index = () => {
       </nav>
 
       {/* ═══════════ ABOUT ═══════════ */}
-      <section id="about" className="py-14 md:py-24">
-        <div className="mx-auto max-w-[1100px] px-6">
+      <SectionBg image={bgAbout} className="py-14 md:py-24">
+        <section id="about" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="About" subtitle="Research focus & background" />
           <Reveal>
             <div className="mx-auto max-w-3xl text-center">
@@ -433,11 +448,11 @@ const Index = () => {
               </p>
             </div>
           </Reveal>
-        </div>
-      </section>
+        </section>
+      </SectionBg>
 
       {/* ═══════════ EDUCATION — Timeline ═══════════ */}
-      <ParallaxDivider>
+      <SectionBg image={bgEducation} className="py-14 md:py-32">
         <section id="education" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Education" subtitle="Academic journey" />
           <div className="relative max-w-2xl mx-auto">
@@ -465,11 +480,11 @@ const Index = () => {
             ))}
           </div>
         </section>
-      </ParallaxDivider>
+      </SectionBg>
 
       {/* ═══════════ AFFILIATIONS ═══════════ */}
-      <section id="affiliations" className="py-14 md:py-24">
-        <div className="mx-auto max-w-[1100px] px-6">
+      <SectionBg image={bgAffiliations} className="py-14 md:py-24">
+        <section id="affiliations" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Affiliations" subtitle="Current positions & roles" />
           <div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
             {AFFILIATIONS.map((a, i) => (
@@ -492,11 +507,11 @@ const Index = () => {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      </SectionBg>
 
       {/* ═══════════ PUBLICATIONS ═══════════ */}
-      <ParallaxDivider>
+      <SectionBg image={bgPublications} className="py-14 md:py-32">
         <section id="publications" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Publications" subtitle="Selected peer-reviewed work" />
           <div className="space-y-6 max-w-3xl mx-auto">
@@ -531,11 +546,11 @@ const Index = () => {
             ))}
           </div>
         </section>
-      </ParallaxDivider>
+      </SectionBg>
 
       {/* ═══════════ PROJECTS — Visual bento grid ═══════════ */}
-      <section id="projects" className="py-14 md:py-24">
-        <div className="mx-auto max-w-[1100px] px-6">
+      <SectionBg image={bgProjects} className="py-14 md:py-24">
+        <section id="projects" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Projects & Impact" subtitle="Key research initiatives" />
           <div className="grid gap-6 md:grid-cols-2">
             {PROJECTS.map((p, i) => {
@@ -580,11 +595,11 @@ const Index = () => {
               );
             })}
           </div>
-        </div>
-      </section>
+        </section>
+      </SectionBg>
 
       {/* ═══════════ AWARDS — Visual with large icons ═══════════ */}
-      <ParallaxDivider>
+      <SectionBg image={bgAwards} className="py-14 md:py-32">
         <section id="awards" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Awards & Honors" />
           <div className="grid gap-8 sm:grid-cols-3 max-w-3xl mx-auto">
@@ -609,11 +624,11 @@ const Index = () => {
             ))}
           </div>
         </section>
-      </ParallaxDivider>
+      </SectionBg>
 
       {/* ═══════════ MEDIA ═══════════ */}
-      <section id="media" className="py-14 md:py-24">
-        <div className="mx-auto max-w-[1100px] px-6">
+      <SectionBg image={bgMedia} className="py-14 md:py-24">
+        <section id="media" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Media & Press" />
           <div className="space-y-6 max-w-3xl mx-auto">
             {MEDIA.map((m, i) => (
@@ -637,12 +652,12 @@ const Index = () => {
               </Reveal>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
+      </SectionBg>
 
       {/* ═══════════ CONTACT ═══════════ */}
-      <section id="contact" className="py-14 md:py-24">
-        <div className="mx-auto max-w-[1100px] px-6">
+      <SectionBg image={bgContact} className="py-14 md:py-24">
+        <section id="contact" className="mx-auto max-w-[1100px] px-6">
           <SectionTitle title="Get in Touch" subtitle="Let's connect" />
           <div className="max-w-2xl mx-auto text-center">
             <Reveal>
@@ -686,8 +701,8 @@ const Index = () => {
               </div>
             </Reveal>
           </div>
-        </div>
-      </section>
+        </section>
+      </SectionBg>
 
       {/* ═══════════ FOOTER ═══════════ */}
       <footer className="relative border-t py-14">
