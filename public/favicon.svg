@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="url(#grad)"/>
+  <text x="32" y="44" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="30" fill="white" letter-spacing="-1">IF</text>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="hsl(168, 80%, 30%)"/>
+      <stop offset="1" stop-color="hsl(195, 80%, 35%)"/>
+    </linearGradient>
+  </defs>
+</svg>

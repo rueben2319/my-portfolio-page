@@ -508,7 +508,7 @@ const Index = () => {
                           Open Access
                         </Badge>
                       )}
-                      {p.url !== "#" && (
+                      {!!p.url && (
                         <a href={p.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
                           View <ArrowUpRight className="h-3 w-3" />
                         </a>
@@ -553,6 +553,16 @@ const Index = () => {
                       </div>
                       <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-2">{p.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
+                      {!!p.url && (
+                        <a
+                          href={p.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                        >
+                          Learn more <ArrowUpRight className="h-4 w-4" />
+                        </a>
+                      )}
                     </div>
                   </motion.div>
                 </Reveal>
@@ -605,7 +615,7 @@ const Index = () => {
                     <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">{m.title}</h3>
                     <p className="text-sm text-muted-foreground mt-0.5">{m.source}</p>
                   </div>
-                  {m.url !== "#" && (
+                  {!!m.url && (
                     <a href={m.url} target="_blank" rel="noopener noreferrer">
                       <motion.div whileHover={{ scale: 1.1 }} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors">
                         <ArrowUpRight className="h-5 w-5" />
