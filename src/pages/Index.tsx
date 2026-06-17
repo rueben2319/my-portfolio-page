@@ -2,9 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   GraduationCap,
-  Briefcase,
   BookOpen,
-  Lightbulb,
   Award,
   Newspaper,
   Mail,
@@ -18,26 +16,16 @@ import {
   Cpu,
   Wheat,
   FlaskConical,
-  ChevronRight,
   Globe,
   Linkedin,
   FileText,
   Trophy,
   Star,
-  Sprout,
+  Building2,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import profileImg from "@/assets/profile.jpg";
-import heroBg from "@/assets/hero-bg.jpg";
-import bgAbout from "@/assets/bg-about.jpg";
-import bgEducation from "@/assets/bg-education.jpg";
-import bgAffiliations from "@/assets/bg-affiliations.jpg";
-import bgPublications from "@/assets/bg-publications.jpg";
-import bgProjects from "@/assets/bg-projects.jpg";
-import bgAwards from "@/assets/bg-awards.jpg";
-import bgMedia from "@/assets/bg-media.jpg";
-import bgContact from "@/assets/bg-contact.jpg";
 
 import {
   NAV_ITEMS,
@@ -54,10 +42,7 @@ import {
 
 import ScrollProgress from "@/components/ScrollProgress";
 import BackToTop from "@/components/BackToTop";
-import ParticleBackground from "@/components/ParticleBackground";
 import DarkModeToggle from "@/components/DarkModeToggle";
-import CountUp from "@/components/CountUp";
-import TypeWriter from "@/components/TypeWriter";
 
 function scrollTo(id: string, delay = 0) {
   const go = () => {
@@ -68,11 +53,8 @@ function scrollTo(id: string, delay = 0) {
     const top = el.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: "smooth" });
   };
-  if (delay) {
-    setTimeout(go, delay);
-  } else {
-    go();
-  }
+  if (delay) setTimeout(go, delay);
+  else go();
 }
 
 const PROJECT_ICONS = [Droplets, Cpu, Wheat, FlaskConical];
@@ -83,7 +65,7 @@ const LINK_ICONS: Record<string, typeof Globe> = {
   LinkedIn: Linkedin,
 };
 
-/* ── Animated wrapper ── */
+/* ── Reveal wrapper ── */
 function Reveal({
   children,
   className = "",
@@ -101,7 +83,7 @@ function Reveal({
     <motion.div
       id={id}
       ref={ref}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
@@ -111,77 +93,29 @@ function Reveal({
   );
 }
 
-/* ── Section title ── */
-function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-  return (
-    <div ref={ref} className="mb-8 md:mb-12 text-center">
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.5 }}
-        className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl md:text-4xl lg:text-5xl"
-      >
-        {title}
-      </motion.h2>
-      {subtitle && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.15 }}
-          className="mt-3 text-muted-foreground max-w-lg mx-auto"
-        >
-          {subtitle}
-        </motion.p>
-      )}
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={isInView ? { scaleX: 1 } : {}}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="mx-auto mt-4 h-1 w-16 rounded-full bg-gradient-to-r from-primary to-[hsl(var(--gradient-end))]"
-      />
-    </div>
-  );
-}
-
-/* ── Section with parallax background image ── */
-function SectionBg({
-  children,
-  image,
-  className = "",
-  eager = false,
+/* ── Section heading (editorial) ── */
+function SectionHeading({
+  eyebrow,
+  title,
+  number,
 }: {
-  children: React.ReactNode;
-  image: string;
-  className?: string;
-  eager?: boolean;
+  eyebrow: string;
+  title: string;
+  number: string;
 }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "200px" });
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   return (
-    <div ref={ref} className={`relative isolate overflow-hidden ${className}`}>
-      {(eager || isInView) && (
-        <motion.div
-          style={isMobile ? undefined : { y }}
-          className="absolute inset-0 z-[-20]"
-        >
-          <img
-            src={image}
-            alt=""
-            loading={eager ? "eager" : "lazy"}
-            decoding="async"
-            className="h-full md:h-[115%] w-full object-cover object-center will-change-transform"
-            sizes="100vw"
-          />
-        </motion.div>
-      )}
-      <div className="absolute inset-0 z-[-10] bg-background/80 dark:bg-background/88" />
-      {children}
-    </div>
+    <Reveal className="mb-10 md:mb-14 flex items-end justify-between gap-6 border-b border-border pb-6">
+      <div>
+        <p className="eyebrow mb-3 flex items-center gap-3">
+          <span className="font-mono text-sage">{number}</span>
+          <span className="h-px w-8 bg-border" />
+          {eyebrow}
+        </p>
+        <h2 className="font-serif-display text-4xl sm:text-5xl md:text-6xl text-foreground">
+          {title}
+        </h2>
+      </div>
+    </Reveal>
   );
 }
 
@@ -189,16 +123,6 @@ const Index = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
-
-  const heroRef = useRef(null);
-  const { scrollYProgress: heroProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroY = useTransform(heroProgress, [0, 1], ["0%", "30%"]);
-  const heroOpacity = useTransform(heroProgress, [0, 0.7], [1, 0]);
-  const blob1Y = useTransform(heroProgress, [0, 1], [0, 120]);
-  const blob2Y = useTransform(heroProgress, [0, 1], [0, -80]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60);
@@ -223,196 +147,57 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground selection:bg-forest selection:text-background">
       <ScrollProgress />
-      <ParticleBackground />
       <BackToTop />
 
-      {/* ═══════════ HERO ═══════════ */}
-      <header ref={heroRef} className="relative isolate min-h-[80vh] md:min-h-[90vh] flex items-center overflow-hidden py-12 md:py-0">
-        {/* Background irrigation image with parallax */}
-        <motion.div
-          style={typeof window !== "undefined" && window.innerWidth >= 768 ? { y: blob1Y } : undefined}
-          className="absolute inset-0 z-[-20]"
-        >
-          <img
-            src={heroBg}
-            alt=""
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-            className="h-full md:h-[115%] w-full object-cover object-center will-change-transform"
-            sizes="100vw"
-          />
-        </motion.div>
-        {/* Dark overlay for readability */}
-        <div className="absolute inset-0 z-[-10] bg-gradient-to-b from-background/85 via-background/75 to-background dark:from-background/90 dark:via-background/80 dark:to-background" />
-        {/* Teal tint overlay */}
-        <div className="absolute inset-0 z-[-10] bg-primary/[0.04]" />
-
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="mx-auto flex max-w-[1100px] w-full flex-col items-center gap-10 px-6 text-center md:flex-row md:text-left md:gap-16"
-        >
-          {/* Profile image — large and prominent */}
-          <motion.div
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.8, type: "spring", stiffness: 120 }}
-            className="relative shrink-0 group"
-          >
-            <div className="absolute -inset-4 rounded-full bg-gradient-to-br from-primary/25 to-[hsl(var(--gradient-end)/.20)] blur-2xl group-hover:blur-3xl transition-all duration-700" />
-            <div className="relative h-40 w-40 sm:h-48 sm:w-48 md:h-56 md:w-56 rounded-full overflow-hidden ring-2 ring-white/30 ring-offset-4 ring-offset-background shadow-2xl">
-              <img
-                src={profileImg}
-                alt="Dr. Isaac R. Fandika"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-            </div>
-            {/* Floating icon */}
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -bottom-2 -right-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
-            >
-              <Sprout className="h-6 w-6" />
-            </motion.div>
-          </motion.div>
-
-          <div className="space-y-5 max-w-xl">
-            <motion.p
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-sm px-3 py-1.5 text-[10px] sm:text-xs sm:px-4 font-semibold uppercase tracking-widest text-primary"
-            >
-              <Droplets className="h-3.5 w-3.5" />
-              Chief Agricultural Research Scientist
-            </motion.p>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl leading-[1.1] drop-shadow-sm"
-            >
-              Dr. Isaac R.{" "}
-              <span className="gradient-text">Fandika</span>
-            </motion.h1>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-            >
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-                <TypeWriter
-                  text="Irrigation agronomist advancing water-smart, climate-resilient agriculture for smallholder farmers in sub-Saharan Africa."
-                  speed={22}
-                  delay={900}
-                />
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              className="flex items-center gap-2 text-sm text-muted-foreground justify-center md:justify-start"
-            >
-              <MapPin className="h-4 w-4 text-primary" />
-              DARS, Ministry of Agriculture - Malawi
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="flex flex-wrap gap-2 justify-center md:justify-start"
-            >
-              {HERO_KEYWORDS.map((k, i) => (
-                <motion.div
-                  key={k}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.9 + i * 0.08 }}
-                >
-                  <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium backdrop-blur-sm">
-                    {k}
-                  </Badge>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2 }}
-              className="flex flex-col sm:flex-row gap-3 pt-2 justify-center md:justify-start items-center sm:items-start"
-            >
-              <Button
-                onClick={() => scrollTo("contact")}
-                className="rounded-full gap-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all"
-              >
-                <Mail className="h-4 w-4" />
-                Get in Touch
-              </Button>
-              <Button
-                variant="outline"
-                className="rounded-full gap-2 bg-background/50 backdrop-blur-sm hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all"
-              >
-                <Download className="h-4 w-4" />
-                Download CV
-              </Button>
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex"
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="flex flex-col items-center gap-2 text-muted-foreground/50 text-xs"
-          >
-            <span>Scroll</span>
-            <ChevronRight className="h-4 w-4 rotate-90" />
-          </motion.div>
-        </motion.div>
-      </header>
-
       {/* ═══════════ STICKY NAV ═══════════ */}
-      <nav className={`sticky top-[3px] z-40 transition-all duration-300 ${scrolled ? "glass shadow-lg shadow-background/20" : "bg-background/80 backdrop-blur-md border-b"}`}>
-        <div className="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-2 md:py-0">
-          <span className="text-sm font-bold text-foreground md:hidden">I. R. Fandika</span>
-          <ul className="hidden md:flex gap-0.5">
+      <nav
+        className={`sticky top-0 z-40 transition-all duration-300 ${
+          scrolled ? "glass" : "bg-background border-b border-transparent"
+        }`}
+      >
+        <div className="mx-auto flex max-w-[1200px] items-center justify-between px-5 sm:px-8 py-3">
+          <button
+            onClick={() => scrollTo("hero")}
+            className="font-serif-display text-xl sm:text-2xl text-foreground"
+          >
+            I·R·F
+          </button>
+          <ul className="hidden md:flex items-center gap-1">
             {NAV_ITEMS.map((n) => (
               <li key={n.id}>
                 <button
                   onClick={() => scrollTo(n.id)}
-                  className={`relative rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === n.id ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  className={`relative rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${
+                    activeSection === n.id
+                      ? "text-background"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
                 >
-                  {n.label}
                   {activeSection === n.id && (
                     <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-x-1 -bottom-[1px] h-0.5 rounded-full bg-primary"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      layoutId="activePill"
+                      className="absolute inset-0 rounded-full bg-forest"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
                     />
                   )}
+                  <span className="relative">{n.label}</span>
                 </button>
               </li>
             ))}
           </ul>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <DarkModeToggle />
+            <Button
+              onClick={() => scrollTo("contact")}
+              size="sm"
+              className="hidden md:inline-flex rounded-full bg-forest hover:bg-moss text-background"
+            >
+              Contact
+            </Button>
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-muted transition-colors"
+              className="md:hidden p-2 rounded-full hover:bg-muted transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
@@ -426,13 +211,20 @@ const Index = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t px-6 pb-4 pt-2 space-y-0.5 bg-background overflow-hidden"
+              className="md:hidden border-t border-border px-5 pb-4 pt-2 space-y-0.5 bg-background overflow-hidden"
             >
               {NAV_ITEMS.map((n) => (
                 <li key={n.id}>
                   <button
-                    onClick={() => { setMobileOpen(false); scrollTo(n.id, 300); }}
-                    className={`block w-full text-left rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${activeSection === n.id ? "text-primary bg-primary/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}
+                    onClick={() => {
+                      setMobileOpen(false);
+                      scrollTo(n.id, 300);
+                    }}
+                    className={`block w-full text-left rounded-lg px-3 py-3 text-sm font-medium transition-colors ${
+                      activeSection === n.id
+                        ? "text-forest bg-secondary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
                   >
                     {n.label}
                   </button>
@@ -443,313 +235,532 @@ const Index = () => {
         </AnimatePresence>
       </nav>
 
-      {/* ═══════════ ABOUT ═══════════ */}
-      <SectionBg image={bgAbout} className="py-14 md:py-24" eager>
-        <section id="about" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="About" subtitle="Research focus & background" />
-          <Reveal>
-            <div className="mx-auto max-w-3xl text-center">
-              <div className="relative inline-block mb-6">
-                <BookOpen className="h-12 w-12 text-primary mx-auto" />
-              </div>
-              <p className="text-lg leading-loose text-muted-foreground">
-                Dr. Isaac Rhinnexious Fandika is a seasoned irrigation agronomist
-                and Chief Agricultural Research Scientist at the Department of
-                Agricultural Research Services (DARS) within Malawi's Ministry of
-                Agriculture. His research focuses on improving water productivity
-                for smallholder farming systems through innovative irrigation
-                strategies, precision soil-moisture monitoring, and digital
-                advisory tools. He earned his PhD in Plant Science (Irrigation
-                Agronomy) from Massey University, New Zealand, where he
-                investigated deficit irrigation and alternate-furrow techniques on
-                tropical cereals. With over 15 years of applied research across
-                Kasinthula and Bvumbwe research stations, Dr. Fandika has
-                published widely in peer-reviewed journals and led multi-country
-                projects that translate science into field-ready solutions.
-              </p>
-            </div>
-          </Reveal>
-        </section>
-      </SectionBg>
-
-      {/* ═══════════ EDUCATION — Timeline ═══════════ */}
-      <SectionBg image={bgEducation} className="py-14 md:py-32">
-        <section id="education" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="Education" subtitle="Academic journey" />
-          <div className="relative max-w-2xl mx-auto">
-            {/* Timeline line */}
-            <div className="absolute left-[1.95rem] sm:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-primary/40 via-primary/20 to-transparent" />
-            {EDUCATION.map((e, i) => (
-              <Reveal key={e.degree} delay={i * 0.15} className="relative flex gap-4 sm:gap-6 pb-10 sm:pb-12 last:pb-0">
-                {/* Timeline dot */}
+      {/* ═══════════ HERO ═══════════ */}
+      <header id="hero" className="relative isolate">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-8 pt-8 md:pt-16 pb-16 md:pb-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch">
+            {/* Left — text */}
+            <div className="lg:col-span-7 flex flex-col justify-between">
+              <div>
                 <motion.div
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.15 + 0.2, type: "spring" }}
-                  className="relative z-10 flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-primary/10 text-primary"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 text-xs"
                 >
-                  <GraduationCap className="h-7 w-7" />
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sage opacity-60" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-sage" />
+                  </span>
+                  <span className="font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    Available for collaboration
+                  </span>
                 </motion.div>
-                <div className="pt-2">
-                  <h3 className="text-lg font-bold text-foreground">{e.degree}</h3>
-                  {e.field && <p className="text-sm font-medium text-primary">{e.field}</p>}
-                  <p className="text-muted-foreground mt-1">{e.uni}</p>
-                  <p className="text-sm font-mono text-muted-foreground/60 mt-1">{e.years}</p>
+
+                <motion.h1
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.1 }}
+                  className="font-serif-display mt-8 text-[3.5rem] leading-[0.92] sm:text-7xl md:text-[5.5rem] lg:text-[6rem] text-forest"
+                >
+                  Dr. Isaac
+                  <br />
+                  <span className="italic text-moss">Rhinnexious</span>
+                  <br />
+                  Fandika
+                </motion.h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="mt-8 max-w-xl text-base sm:text-lg leading-relaxed text-muted-foreground"
+                >
+                  Irrigation agronomist advancing water-smart, climate-resilient
+                  agriculture for smallholder farmers in sub-Saharan Africa.
+                </motion.p>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.45 }}
+                className="mt-10 flex flex-col gap-6"
+              >
+                <div className="flex flex-wrap gap-2">
+                  {HERO_KEYWORDS.map((k) => (
+                    <Badge
+                      key={k}
+                      variant="outline"
+                      className="rounded-full border-border bg-transparent px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground"
+                    >
+                      {k}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    onClick={() => scrollTo("contact")}
+                    className="rounded-full bg-forest hover:bg-moss text-background gap-2 h-11 px-5"
+                  >
+                    <Mail className="h-4 w-4" />
+                    Get in touch
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="rounded-full gap-2 h-11 px-5 border-border hover:bg-secondary"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download CV
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Right — portrait + quick stats bento */}
+            <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8 }}
+                className="col-span-2 relative overflow-hidden rounded-[var(--radius)] border border-border aspect-[5/4] grain"
+              >
+                <img
+                  src={profileImg}
+                  alt="Dr. Isaac R. Fandika"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 p-5 bg-gradient-to-t from-forest/85 via-forest/40 to-transparent">
+                  <p className="eyebrow text-background/80 mb-1">Chief Agricultural Research Scientist</p>
+                  <p className="text-sm font-medium text-background flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5" />
+                    DARS · Ministry of Agriculture, Malawi
+                  </p>
+                </div>
+              </motion.div>
+
+              <Reveal delay={0.2} className="bento-card p-5">
+                <p className="eyebrow mb-2">Experience</p>
+                <p className="font-serif-display text-5xl text-forest">15+</p>
+                <p className="text-xs text-muted-foreground mt-1">Years in applied research</p>
+              </Reveal>
+
+              <Reveal delay={0.3} className="bento-card p-5">
+                <p className="eyebrow mb-2">Publications</p>
+                <p className="font-serif-display text-5xl text-forest">{PUBLICATIONS.length}+</p>
+                <p className="text-xs text-muted-foreground mt-1">Peer-reviewed papers</p>
+              </Reveal>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ═══════════ ABOUT + EDUCATION ═══════════ */}
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 md:py-24">
+        <SectionHeading number="01" eyebrow="Background" title="About" />
+        <div id="about" className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* About narrative */}
+          <Reveal className="lg:col-span-7 bento-card p-7 md:p-10">
+            <p className="eyebrow mb-5">Biography</p>
+            <p className="font-serif-display text-2xl sm:text-3xl md:text-[2rem] text-foreground leading-[1.15]">
+              Dr. Isaac Rhinnexious Fandika is a seasoned irrigation agronomist improving
+              <span className="italic text-moss"> water productivity </span>
+              for smallholder farming systems across sub-Saharan Africa.
+            </p>
+            <p className="mt-6 text-muted-foreground leading-relaxed">
+              His research focuses on innovative irrigation strategies, precision
+              soil-moisture monitoring, and digital advisory tools. With over 15 years
+              of applied research across Kasinthula and Bvumbwe research stations,
+              he has published widely in peer-reviewed journals and led multi-country
+              projects that translate science into field-ready solutions.
+            </p>
+          </Reveal>
+
+          {/* Education stack */}
+          <div id="education" className="lg:col-span-5 flex flex-col gap-5">
+            <Reveal className="bento-card bento-dark p-7">
+              <p className="eyebrow text-background/60 mb-3">02 · Education</p>
+              <p className="font-serif-display text-3xl text-background leading-tight">
+                Academic
+                <br />
+                <span className="italic">journey</span>
+              </p>
+            </Reveal>
+            {EDUCATION.map((e, i) => (
+              <Reveal key={e.degree} delay={i * 0.08} className="bento-card p-5 flex gap-4 items-start">
+                <div className="shrink-0 h-11 w-11 rounded-xl bg-secondary text-forest flex items-center justify-center">
+                  <GraduationCap className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h3 className="font-serif-display text-xl text-foreground leading-tight">
+                      {e.degree}
+                    </h3>
+                    <span className="text-[11px] font-mono text-sage shrink-0">{e.years}</span>
+                  </div>
+                  {e.field && <p className="text-sm text-moss mt-0.5">{e.field}</p>}
+                  <p className="text-sm text-muted-foreground mt-1">{e.uni}</p>
                 </div>
               </Reveal>
             ))}
           </div>
-        </section>
-      </SectionBg>
+        </div>
+      </section>
 
       {/* ═══════════ AFFILIATIONS ═══════════ */}
-      <SectionBg image={bgAffiliations} className="py-14 md:py-24">
-        <section id="affiliations" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="Affiliations" subtitle="Current positions & roles" />
-          <div className="grid gap-8 md:grid-cols-2 max-w-3xl mx-auto">
-            {AFFILIATIONS.map((a, i) => (
-              <Reveal key={a.role} delay={i * 0.15}>
-                <div className="group text-center md:text-left">
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4"
-                  >
-                    <Briefcase className="h-7 w-7" />
-                  </motion.div>
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{a.role}</h3>
-                  <p className="text-muted-foreground mt-1">{a.org}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{a.detail}</p>
-                  <div className="flex items-center gap-1.5 text-sm text-primary mt-2 justify-center md:justify-start">
-                    <MapPin className="h-3.5 w-3.5" />
-                    {a.location}
-                  </div>
+      <section id="affiliations" className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 md:py-24">
+        <SectionHeading number="03" eyebrow="Current positions" title="Affiliations" />
+        <div className="grid gap-5 md:grid-cols-2">
+          {AFFILIATIONS.map((a, i) => (
+            <Reveal key={a.role} delay={i * 0.1} className="bento-card p-7 md:p-9 group">
+              <div className="flex items-start justify-between mb-6">
+                <div className="h-12 w-12 rounded-xl bg-secondary text-forest flex items-center justify-center">
+                  <Building2 className="h-6 w-6" />
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      </SectionBg>
+                <span className="font-mono text-xs text-sage">0{i + 1}</span>
+              </div>
+              <h3 className="font-serif-display text-2xl md:text-3xl text-foreground leading-tight">
+                {a.role}
+              </h3>
+              <p className="mt-3 text-base text-moss font-medium">{a.org}</p>
+              <p className="text-sm text-muted-foreground mt-1">{a.detail}</p>
+              <div className="mt-6 pt-5 hairline flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 text-sage" />
+                {a.location}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
       {/* ═══════════ PUBLICATIONS ═══════════ */}
-      <SectionBg image={bgPublications} className="py-14 md:py-32">
-        <section id="publications" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="Publications" subtitle="Selected peer-reviewed work" />
-          <div className="space-y-6 max-w-3xl mx-auto">
-            {PUBLICATIONS.map((p, i) => (
-              <Reveal key={i} delay={i * 0.05}>
-                <div className="group flex gap-4 items-start">
-                  <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary mt-0.5">
-                    <BookOpen className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-foreground leading-snug group-hover:text-primary transition-colors">
-                      {p.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">{p.authors}</p>
-                    <div className="flex items-center gap-3 mt-2 flex-wrap">
-                      <span className="text-xs text-muted-foreground italic">{p.journal}</span>
-                      <span className="text-xs font-mono text-muted-foreground/70">{p.year}</span>
-                      {p.openAccess && (
-                        <Badge className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px] px-2 py-0 hover:bg-emerald-500/10">
-                          Open Access
-                        </Badge>
-                      )}
-                      {!!p.url && (
-                        <a href={p.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                          View <ArrowUpRight className="h-3 w-3" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      </SectionBg>
-
-      {/* ═══════════ PROJECTS — Visual bento grid ═══════════ */}
-      <SectionBg image={bgProjects} className="py-14 md:py-24">
-        <section id="projects" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="Projects & Impact" subtitle="Key research initiatives" />
-          <div className="grid gap-6 md:grid-cols-2">
-            {PROJECTS.map((p, i) => {
-              const Icon = PROJECT_ICONS[i] || Lightbulb;
-              return (
-                <Reveal key={p.title} delay={i * 0.12}>
-                  <motion.div
-                    whileHover={{ y: -6 }}
-                    className="group relative rounded-2xl sm:rounded-3xl bg-gradient-to-br from-card to-card p-5 sm:p-8 border border-border/50 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 overflow-hidden"
-                  >
-                    {/* Background gradient on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
-
-                    <div className="relative">
-                      <div className="flex items-start justify-between mb-4">
-                        <motion.div
-                          whileHover={{ rotate: 10, scale: 1.1 }}
-                          className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"
-                        >
-                          <Icon className="h-7 w-7" />
-                        </motion.div>
-                        <div className="text-right">
-                          <CountUp value={p.stat} className="text-3xl font-extrabold gradient-text" />
-                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{p.statLabel}</p>
-                        </div>
-                      </div>
-                      <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors mb-2">{p.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
-                      {!!p.url && (
-                        <a
-                          href={p.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
-                        >
-                          Learn more <ArrowUpRight className="h-4 w-4" />
-                        </a>
-                      )}
-                    </div>
-                  </motion.div>
-                </Reveal>
-              );
-            })}
-          </div>
-        </section>
-      </SectionBg>
-
-      {/* ═══════════ AWARDS — Visual with large icons ═══════════ */}
-      <SectionBg image={bgAwards} className="py-14 md:py-32">
-        <section id="awards" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="Awards & Honors" />
-          <div className="grid gap-8 sm:grid-cols-3 max-w-3xl mx-auto">
-            {AWARDS.map((a, i) => (
-              <Reveal key={a.name} delay={i * 0.12}>
-                <motion.div
-                  whileHover={{ y: -4 }}
-                  className="group text-center"
+      <section id="publications" className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 md:py-24">
+        <SectionHeading number="04" eyebrow="Selected peer-reviewed work" title="Publications" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Featured */}
+          <Reveal className="lg:col-span-7 bento-card bento-dark p-7 md:p-10 group">
+            <p className="eyebrow text-background/60 mb-5">Featured · {PUBLICATIONS[0].year}</p>
+            <h3 className="font-serif-display text-3xl md:text-4xl text-background leading-[1.1]">
+              {PUBLICATIONS[0].title}
+            </h3>
+            <p className="mt-5 text-sm text-background/70 leading-relaxed">{PUBLICATIONS[0].authors}</p>
+            <div className="mt-8 pt-6 border-t border-background/15 flex items-center justify-between gap-4">
+              <p className="italic text-mist">{PUBLICATIONS[0].journal}</p>
+              {PUBLICATIONS[0].url && (
+                <a
+                  href={PUBLICATIONS[0].url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm text-background hover:text-mist transition-colors"
                 >
-                  <motion.div
-                    whileHover={{ rotate: [0, -10, 10, 0] }}
-                    transition={{ duration: 0.5 }}
-                    className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary mb-4"
-                  >
-                    {i === 0 ? <Trophy className="h-9 w-9" /> : i === 1 ? <Star className="h-9 w-9" /> : <Award className="h-9 w-9" />}
-                  </motion.div>
-                  <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{a.name}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{a.org}</p>
-                  <p className="text-xs font-mono text-primary/70 mt-2">{a.year}</p>
-                </motion.div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      </SectionBg>
+                  Read paper <ArrowUpRight className="h-4 w-4" />
+                </a>
+              )}
+            </div>
+          </Reveal>
 
-      {/* ═══════════ MEDIA ═══════════ */}
-      <SectionBg image={bgMedia} className="py-14 md:py-24">
-        <section id="media" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="Media & Press" />
-          <div className="space-y-6 max-w-3xl mx-auto">
-            {MEDIA.map((m, i) => (
-              <Reveal key={m.title} delay={i * 0.1}>
-                <div className="group flex gap-4 items-center">
-                  <div className="shrink-0 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <Newspaper className="h-6 w-6" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">{m.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-0.5">{m.source}</p>
-                  </div>
-                  {!!m.url && (
-                    <a href={m.url} target="_blank" rel="noopener noreferrer">
-                      <motion.div whileHover={{ scale: 1.1 }} className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors">
-                        <ArrowUpRight className="h-5 w-5" />
-                      </motion.div>
+          {/* Rest of publications */}
+          <div className="lg:col-span-5 grid gap-5">
+            {PUBLICATIONS.slice(1, 4).map((p, i) => (
+              <Reveal key={i} delay={i * 0.08} className="bento-card p-5 flex gap-5 group">
+                <p className="font-serif-display text-4xl text-sage shrink-0 leading-none">
+                  {String(p.year).slice(2)}
+                </p>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-semibold text-foreground leading-snug group-hover:text-forest transition-colors">
+                    {p.title}
+                  </h3>
+                  <p className="mt-1 text-xs italic text-muted-foreground">{p.journal}</p>
+                  {p.url && (
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center gap-1 text-xs text-forest hover:underline"
+                    >
+                      View <ArrowUpRight className="h-3 w-3" />
                     </a>
                   )}
                 </div>
               </Reveal>
             ))}
           </div>
-        </section>
-      </SectionBg>
 
-      {/* ═══════════ CONTACT ═══════════ */}
-      <SectionBg image={bgContact} className="py-14 md:py-24">
-        <section id="contact" className="mx-auto max-w-[1100px] px-6">
-          <SectionTitle title="Get in Touch" subtitle="Let's connect" />
-          <div className="max-w-2xl mx-auto text-center">
-            <Reveal>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="inline-flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10 text-primary mb-6"
-              >
-                <Mail className="h-10 w-10" />
-              </motion.div>
-              <div className="space-y-1 mb-8">
-                <p className="font-bold text-foreground text-lg">Direct Contact</p>
-                <p className="text-muted-foreground">
-                  <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-primary transition-colors">
-                    {CONTACT_INFO.email}
-                  </a>
-                </p>
-                <p className="text-muted-foreground">
-                  <a href={`tel:${CONTACT_INFO.phone}`} className="hover:text-primary transition-colors">
-                    {CONTACT_INFO.phone}
-                  </a>
-                </p>
-              </div>
-              <div className="space-y-1 mb-8">
-                <p className="font-bold text-foreground text-lg">Institutional Contact</p>
-                <p className="text-muted-foreground">Department of Agricultural Research Services (DARS)</p>
-                <p className="text-muted-foreground">Ministry of Agriculture, P.O. Box 158, Lilongwe, Malawi</p>
-              </div>
-              <div className="flex flex-wrap justify-center gap-3">
-                {CONTACT_LINKS.map((l, i) => {
-                  const Icon = LINK_ICONS[l.label] || ExternalLink;
-                  return (
-                    <motion.a
-                      key={l.label}
-                      href={l.url}
+          {/* Remaining as bento row */}
+          {PUBLICATIONS.slice(4).map((p, i) => (
+            <Reveal
+              key={i + 4}
+              delay={i * 0.06}
+              className="lg:col-span-6 bento-card p-6 flex gap-5 group"
+            >
+              <p className="font-serif-display text-5xl text-sage shrink-0 leading-none">
+                {p.year}
+              </p>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-foreground leading-snug group-hover:text-forest transition-colors">
+                  {p.title}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2">{p.authors}</p>
+                <div className="mt-3 flex items-center gap-3 flex-wrap">
+                  <span className="text-xs italic text-muted-foreground">{p.journal}</span>
+                  {p.openAccess && (
+                    <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-sage">
+                      <span className="h-1.5 w-1.5 rounded-full bg-sage" /> Open access
+                    </span>
+                  )}
+                  {p.url && (
+                    <a
+                      href={p.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95 }}
+                      className="ml-auto inline-flex items-center gap-1 text-xs text-forest hover:underline"
                     >
-                      <Button
-                        variant="outline"
-                        className="rounded-full gap-2 px-4 py-3 sm:px-5 sm:py-5 text-xs sm:text-sm hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all"
-                      >
-                        <Icon className="h-4 w-4" />
-                        {l.label}
-                      </Button>
-                    </motion.a>
-                  );
-                })}
+                      View <ArrowUpRight className="h-3 w-3" />
+                    </a>
+                  )}
+                </div>
               </div>
             </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════ PROJECTS ═══════════ */}
+      <section id="projects" className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 md:py-24">
+        <SectionHeading number="05" eyebrow="Research initiatives" title="Projects & impact" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {PROJECTS.map((p, i) => {
+            const Icon = PROJECT_ICONS[i] || Droplets;
+            const isLarge = i === 0;
+            return (
+              <Reveal
+                key={p.title}
+                delay={i * 0.08}
+                className={`bento-card p-7 md:p-8 group ${
+                  isLarge ? "lg:col-span-6 lg:row-span-2 bento-dark" : "lg:col-span-6"
+                }`}
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div
+                    className={`h-12 w-12 rounded-xl flex items-center justify-center ${
+                      isLarge ? "bg-background/10 text-background" : "bg-secondary text-forest"
+                    }`}
+                  >
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="text-right">
+                    <p
+                      className={`font-serif-display text-5xl md:text-6xl leading-none ${
+                        isLarge ? "text-background" : "text-forest"
+                      }`}
+                    >
+                      {p.stat}
+                    </p>
+                    <p
+                      className={`mt-1 text-[10px] uppercase tracking-[0.18em] ${
+                        isLarge ? "text-background/60" : "text-muted-foreground"
+                      }`}
+                    >
+                      {p.statLabel}
+                    </p>
+                  </div>
+                </div>
+                <h3
+                  className={`font-serif-display text-2xl md:text-3xl leading-tight ${
+                    isLarge ? "text-background" : "text-foreground"
+                  }`}
+                >
+                  {p.title}
+                </h3>
+                <p
+                  className={`mt-4 text-sm leading-relaxed ${
+                    isLarge ? "text-background/70" : "text-muted-foreground"
+                  }`}
+                >
+                  {p.description}
+                </p>
+                {p.url && (
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`mt-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                      isLarge ? "text-mist hover:text-background" : "text-forest hover:text-moss"
+                    }`}
+                  >
+                    Learn more <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                )}
+              </Reveal>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ═══════════ AWARDS + MEDIA ═══════════ */}
+      <section className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-16">
+          {/* Awards */}
+          <div id="awards" className="lg:col-span-6">
+            <Reveal className="mb-10 border-b border-border pb-6">
+              <p className="eyebrow mb-3 flex items-center gap-3">
+                <span className="font-mono text-sage">06</span>
+                <span className="h-px w-8 bg-border" /> Recognition
+              </p>
+              <h2 className="font-serif-display text-4xl sm:text-5xl text-foreground">Awards & honors</h2>
+            </Reveal>
+            <div className="space-y-4">
+              {AWARDS.map((a, i) => (
+                <Reveal
+                  key={a.name}
+                  delay={i * 0.08}
+                  className="bento-card p-5 flex items-center gap-5 group"
+                >
+                  <div className="shrink-0 h-12 w-12 rounded-xl bg-secondary text-forest flex items-center justify-center">
+                    {i === 0 ? (
+                      <Trophy className="h-6 w-6" />
+                    ) : i === 1 ? (
+                      <Star className="h-6 w-6" />
+                    ) : (
+                      <Award className="h-6 w-6" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground group-hover:text-forest transition-colors">
+                      {a.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{a.org}</p>
+                  </div>
+                  <span className="font-serif-display text-2xl text-sage shrink-0">{a.year}</span>
+                </Reveal>
+              ))}
+            </div>
           </div>
-        </section>
-      </SectionBg>
+
+          {/* Media */}
+          <div id="media" className="lg:col-span-6">
+            <Reveal className="mb-10 border-b border-border pb-6">
+              <p className="eyebrow mb-3 flex items-center gap-3">
+                <span className="font-mono text-sage">07</span>
+                <span className="h-px w-8 bg-border" /> Press
+              </p>
+              <h2 className="font-serif-display text-4xl sm:text-5xl text-foreground">Media</h2>
+            </Reveal>
+            <div className="space-y-4">
+              {MEDIA.map((m, i) => (
+                <Reveal key={m.title} delay={i * 0.08} className="bento-card p-5 group">
+                  <a
+                    href={m.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-5"
+                  >
+                    <div className="shrink-0 h-12 w-12 rounded-xl bg-secondary text-forest flex items-center justify-center">
+                      <Newspaper className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground group-hover:text-forest transition-colors leading-snug">
+                        {m.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">
+                        {m.source}
+                      </p>
+                    </div>
+                    <ArrowUpRight className="h-5 w-5 text-muted-foreground group-hover:text-forest transition-colors shrink-0" />
+                  </a>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ CONTACT ═══════════ */}
+      <section id="contact" className="mx-auto max-w-[1200px] px-5 sm:px-8 py-16 md:py-24">
+        <Reveal className="bento-card bento-dark p-8 md:p-14 lg:p-20 grain relative overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 relative">
+            <div className="lg:col-span-7">
+              <p className="eyebrow text-background/60 mb-5 flex items-center gap-3">
+                <span className="font-mono text-mist">08</span>
+                <span className="h-px w-8 bg-background/20" /> Contact
+              </p>
+              <h2 className="font-serif-display text-5xl sm:text-6xl md:text-7xl text-background leading-[0.95]">
+                Let's build
+                <br />
+                <span className="italic text-mist">water-smart</span>
+                <br />
+                futures.
+              </h2>
+              <p className="mt-8 max-w-md text-background/70 leading-relaxed">
+                Open to research partnerships, advisory roles, and collaborations
+                on climate-resilient irrigation across sub-Saharan Africa.
+              </p>
+            </div>
+
+            <div className="lg:col-span-5 flex flex-col gap-8">
+              <div>
+                <p className="eyebrow text-background/50 mb-3">Direct</p>
+                <a
+                  href={`mailto:${CONTACT_INFO.email}`}
+                  className="block font-serif-display text-2xl md:text-3xl text-background hover:text-mist transition-colors break-all"
+                >
+                  {CONTACT_INFO.email}
+                </a>
+                <a
+                  href={`tel:${CONTACT_INFO.phone}`}
+                  className="block mt-2 text-background/70 hover:text-mist transition-colors"
+                >
+                  {CONTACT_INFO.phone}
+                </a>
+              </div>
+
+              <div className="pt-6 border-t border-background/15">
+                <p className="eyebrow text-background/50 mb-3">Institutional</p>
+                <p className="text-background/80 text-sm leading-relaxed">
+                  Department of Agricultural Research Services (DARS)
+                  <br />
+                  Ministry of Agriculture
+                  <br />
+                  P.O. Box 158, Lilongwe, Malawi
+                </p>
+              </div>
+
+              <div className="pt-6 border-t border-background/15">
+                <p className="eyebrow text-background/50 mb-4">Profiles</p>
+                <div className="flex flex-wrap gap-2">
+                  {CONTACT_LINKS.map((l) => {
+                    const Icon = LINK_ICONS[l.label] || ExternalLink;
+                    return (
+                      <a
+                        key={l.label}
+                        href={l.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full border border-background/20 px-3.5 py-2 text-xs text-background hover:bg-background hover:text-forest transition-colors"
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {l.label}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <footer className="relative border-t py-14">
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/[0.02] to-transparent" />
-        <div className="relative mx-auto max-w-[1100px] px-6 text-center space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">
-            DARS - Ministry of Agriculture, Malawi - Mechro Limited
+      <footer className="border-t border-border">
+        <div className="mx-auto max-w-[1200px] px-5 sm:px-8 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <p className="font-serif-display text-lg text-foreground">
+            Dr. Isaac R. Fandika
+          </p>
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            DARS · Mechro Limited · Malawi
           </p>
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Dr. Isaac R. Fandika. All rights reserved.
-          </p>
-          <p className="text-xs text-muted-foreground/40">
-            Irrigation agronomy - water productivity - soil moisture monitoring - climate-resilient agriculture
+            &copy; {new Date().getFullYear()} All rights reserved
           </p>
         </div>
       </footer>
