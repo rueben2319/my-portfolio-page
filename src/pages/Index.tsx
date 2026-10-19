@@ -58,6 +58,7 @@ const Index = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
+  const [creditMenuOpen, setCreditMenuOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 32);
@@ -345,6 +346,26 @@ const Index = () => {
           <p className="footer-name">Dr. Isaac R. Fandika</p>
           <p>DARS · Mechro Limited · Malawi</p>
           <p>© {new Date().getFullYear()} All rights reserved</p>
+          <div className="footer-credit-picker">
+            <p className="footer-credit">Developed and designed by</p>
+            <button
+              type="button"
+              className="footer-credit-trigger"
+              aria-expanded={creditMenuOpen}
+              aria-controls="footer-credit-options"
+              onClick={() => setCreditMenuOpen((open) => !open)}
+            >
+              Rueben Fandika
+            </button>
+            <div
+              id="footer-credit-options"
+              className={`footer-credit-options${creditMenuOpen ? " footer-credit-options-open" : ""}`}
+              aria-label="Contact the designer"
+            >
+              <a href="https://ruebenfandika.com" onClick={() => setCreditMenuOpen(false)}>Visit website</a>
+              <a href="mailto:ruebenisaac1@gmail.com" onClick={() => setCreditMenuOpen(false)}>Email Rueben</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
