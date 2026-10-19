@@ -277,8 +277,8 @@
 .footer-credit-picker { position: relative; display: inline-flex; align-items: baseline; gap: 0.25rem; }
 .footer-credit-trigger { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
 .footer-credit-trigger:hover, .footer-credit-trigger:focus-visible { color: hsl(var(--ink-accent)); }
-.footer-credit-options { position: absolute; z-index: 20; bottom: calc(100% + 0.55rem); left: 0; display: grid; min-width: 9.5rem; padding: 0.3rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); box-shadow: var(--shadow-soft); opacity: 0; visibility: hidden; pointer-events: none; }
-.footer-credit-picker:hover .footer-credit-options, .footer-credit-picker:focus-within .footer-credit-options, .footer-credit-options-open { opacity: 1; visibility: visible; pointer-events: auto; }
+.footer-credit-options { position: absolute; z-index: 20; bottom: calc(100% + 0.55rem); left: 0; display: grid; min-width: 9.5rem; padding: 0.3rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); box-shadow: var(--shadow-soft); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(0.35rem); transition: opacity 160ms ease, transform 160ms ease, visibility 0s linear 160ms; }
+.footer-credit-picker:hover .footer-credit-options, .footer-credit-options:focus-within, .footer-credit-options-open { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); transition-delay: 0s; }
 .footer-credit-options a { padding: 0.55rem 0.65rem; color: hsl(var(--foreground)); text-decoration: none; white-space: nowrap; }
 .footer-credit-options a:hover, .footer-credit-options a:focus-visible { background: hsl(var(--secondary)); color: hsl(var(--ink-accent)); }
 

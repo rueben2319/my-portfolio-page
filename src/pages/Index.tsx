@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowUpRight,
   BookOpen,
-  Download,
   ExternalLink,
   FileText,
   Globe,
@@ -59,6 +58,31 @@ const Index = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("about");
   const [creditMenuOpen, setCreditMenuOpen] = useState(false);
+  const creditMenuRef = useRef<HTMLDivElement>(null);
+  const creditTriggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!creditMenuOpen) return;
+
+    const closeWhenOutside = (event: PointerEvent) => {
+      if (event.target instanceof Node && !creditMenuRef.current?.contains(event.target)) {
+        setCreditMenuOpen(false);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setCreditMenuOpen(false);
+        creditTriggerRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("pointerdown", closeWhenOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeWhenOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [creditMenuOpen]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 32);
@@ -177,9 +201,6 @@ const Index = () => {
             </ul>
             <div className="hero-actions">
               <a href="#contact" className="action-primary"><Mail aria-hidden="true" /> Get in touch</a>
-              <button type="button" className="action-secondary" disabled title="A CV file is not available in this project">
-                <Download aria-hidden="true" /> Download CV
-              </button>
             </div>
             <div className="hero-facts" aria-label="Professional profile facts">
               <div><strong>15+</strong><span>Years in applied research</span></div>
@@ -346,11 +367,12 @@ const Index = () => {
           <p className="footer-name">Dr. Isaac R. Fandika</p>
           <p>DARS · Mechro Limited · Malawi</p>
           <p>© {new Date().getFullYear()} All rights reserved</p>
-          <div className="footer-credit-picker">
+          <div className="footer-credit-picker" ref={creditMenuRef}>
             <p className="footer-credit">Developed and designed by</p>
             <button
               type="button"
               className="footer-credit-trigger"
+              ref={creditTriggerRef}
               aria-expanded={creditMenuOpen}
               aria-controls="footer-credit-options"
               onClick={() => setCreditMenuOpen((open) => !open)}
