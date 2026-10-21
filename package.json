@@ -13,6 +13,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@adaptive-chatbot/widget": "^0.1.0",
     "@fontsource/instrument-serif": "^5.2.8",
     "@fontsource/work-sans": "^5.2.8",
     "@hookform/resolvers": "^3.10.0",
