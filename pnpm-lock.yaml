@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@adaptive-chatbot/widget':
-        specifier: ^0.1.2
-        version: 0.1.2(react@18.3.1)
+        specifier: ^0.1.3
+        version: 0.1.3(react@18.3.1)
       '@fontsource/instrument-serif':
         specifier: ^5.2.8
         version: 5.3.0
@@ -234,8 +234,8 @@ importers:
 
 packages:
 
-  '@adaptive-chatbot/widget@0.1.2':
-    resolution: {integrity: sha512-NHsJvDJvmV0JXVeVHefFGTxdkRsHHGVvQ1EPqUzgiD3g36jB6N9d7KubpN6W3s1wSf3fEBN5tdimgyjH+uo6IA==}
+  '@adaptive-chatbot/widget@0.1.3':
+    resolution: {integrity: sha512-fqQoDsEOzG0on+I5fDaDLShpvFer/EOH61+zGEXy531LiQTGqZFAoIBGZvy7w9nYnPFOb9qDMjqZF3pT1e4xIw==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
@@ -3102,7 +3102,7 @@ packages:
 
 snapshots:
 
-  '@adaptive-chatbot/widget@0.1.2(react@18.3.1)':
+  '@adaptive-chatbot/widget@0.1.3(react@18.3.1)':
     optionalDependencies:
       react: 18.3.1
 
